@@ -322,7 +322,7 @@ function Review({ draft }: { draft: SetupDraft }) {
           </div>
         ))}
       </dl>
-      <div className="flex items-start gap-3 rounded-lg border border-warn/40 bg-warn/[0.05] px-4 py-3">
+      <div className="flex items-start gap-3 rounded-lg border border-warn-line bg-warn-bg px-4 py-3">
         <ShieldAlert className="mt-0.5 size-4 shrink-0 text-warn" aria-hidden />
         <p className="text-[13px] text-fg-2">
           <span className="font-semibold text-fg">Demo boundary.</span> Launching creates local mock state only. In production the FastAPI backend creates the tenant, sends invites, stores documents and enforces tenant

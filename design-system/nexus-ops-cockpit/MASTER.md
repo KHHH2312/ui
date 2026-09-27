@@ -61,3 +61,25 @@
 - Emoji icons · mixed icon families (Lucide only) · random gradients · heavy glassmorphism/blur as decoration · AI purple/pink gradients
 - Huge hero copy inside the app · long explanatory paragraphs (use chips, cards, tooltips)
 - Fake metrics or "live" labels on mock data · white text on red fills · inconsistent radii · layout-shifting hover transforms
+
+## v2 overhaul — "Deep Obsidian & Industrial Hardware" (supersedes the palette above)
+
+Style-only change: tokens, CSS and class names. No logic, state, routing, data-model or API changes.
+
+| Token | Value | Use |
+|---|---|---|
+| canvas | `#080B10` | App background |
+| surface (E1) | `#0E141E` + 1px `rgba(255,255,255,.07)` + inset top highlight | Cards, panels, dock |
+| raised (E2) | `#151E2D` + 1px `rgba(255,255,255,.12)` | Hover, nested wells |
+| deck (inputs) | `#0A0F17` + 1px `rgba(255,255,255,.10)`, 1px accent focus glow | Inputs, selects |
+| terminal | `#040608` | Audit / activity stdout wells, JSON |
+| accent | `#76B900` → hover `#88D400`, text on accent `#080B10` bold | Primary triggers, verified states |
+| info (telemetry) | `#38BDF8` | Data streams, citations, metadata |
+| crit | `#EF4444` · bg `#2A1215` · line `#7F1D1D` · text `#FCA5A5` | Critical alerts |
+| warn | `#F59E0B` · bg `#261A08` · line `#78350F` · text `#FCD34D` | Warnings |
+| text | high `#F8FAFC` · muted `#94A3B8` · subdued `#475569` (decorative only) | Typography |
+
+- Fonts: Inter (UI) and JetBrains Mono (numbers, IDs, timestamps, badges, code).
+- Headers use −0.02em tracking; metadata tags and table headers use 0.05em uppercase.
+- Radii: 4px controls and badges, 6px panels, 8px maximum. Round shapes are only used for live-status pings and map nodes.
+- No glows or blur. Tables use compact rows, zebra stripes and tabular numerals.

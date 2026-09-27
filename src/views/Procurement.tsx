@@ -344,7 +344,7 @@ function SupplierDetails({ s, ctl }: { s: Supplier; ctl: PrCtl }) {
       </div>
       <KeyValues items={[['Category', s.category], ['OTIF (90 days)', `${s.otif}%`], ['Contract', s.contract], ['Quotations', String(quotes.length)]]} />
       {s.rating === 'Probation' && (
-        <p className="flex items-start gap-2 rounded-md border border-warn/45 bg-warn/[0.06] px-3 py-2 text-[13px] text-fg-2">
+        <p className="flex items-start gap-2 rounded-md border border-warn-line bg-warn-bg px-3 py-2 text-[13px] text-fg-2">
           <ShieldAlert className="mt-0.5 size-4 shrink-0 text-warn" aria-hidden /> Awards to suppliers on probation require procurement-director approval (Procurement_Policy_2026.pdf, p.6).
         </p>
       )}

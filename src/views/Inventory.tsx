@@ -359,7 +359,7 @@ function LotsTab({ lots, filters, setFilters, onOpen }: { lots: LotRisk[]; filte
           <label htmlFor={facilityId} className="mb-1 block text-xs font-medium text-muted">
             Facility
           </label>
-          <select id={facilityId} value={filters.facility} onChange={(e) => setFilters((f) => ({ ...f, facility: e.target.value }))} className="h-9 rounded-md border border-control bg-deck px-2 text-[13px] text-fg-2">
+          <select id={facilityId} value={filters.facility} onChange={(e) => setFilters((f) => ({ ...f, facility: e.target.value }))} className="h-9 rounded-md border border-field bg-deck px-2 text-[13px] text-fg-2">
             <option value="all">All facilities</option>
             {facilities.map((f) => (
               <option key={f}>{f}</option>
@@ -370,7 +370,7 @@ function LotsTab({ lots, filters, setFilters, onOpen }: { lots: LotRisk[]; filte
           <label htmlFor={searchId} className="mb-1 block text-xs font-medium text-muted">
             Search SKU, product or batch
           </label>
-          <div className="flex h-9 items-center gap-2 rounded-md border border-control bg-deck px-2.5 focus-within:border-accent">
+          <div className="flex h-9 items-center gap-2 rounded-md border border-field bg-deck px-2.5 focus-within:border-accent">
             <Search className="size-4 shrink-0 text-muted" aria-hidden />
             <input id={searchId} value={filters.q} onChange={(e) => setFilters((f) => ({ ...f, q: e.target.value }))} className="h-full min-w-0 flex-1 bg-transparent text-[13px] text-fg outline-none placeholder:text-faint" placeholder="e.g. GS-80" />
           </div>
@@ -739,13 +739,13 @@ function RulesTab({ business, tech, summary }: { business: boolean; tech: boolea
         {events.length === 0 ? (
           <p className="px-4 py-4 text-[13px] text-muted">No events yet — approvals, dismissals, scans and rule changes appear here.</p>
         ) : (
-          <ol className="divide-y divide-line">
+          <ol className="terminal m-3 divide-y divide-line">
             {events.slice(0, 10).map((e) => (
-              <li key={e.id} className="flex flex-wrap gap-x-3 px-4 py-2 text-[13px]">
-                <span className="num w-16 shrink-0 text-muted">{e.time}</span>
-                <span className="font-medium text-fg">{e.action}</span>
-                <span className="wrap-anywhere min-w-0 flex-1 text-muted">{e.detail}</span>
-                <span className="text-xs text-muted">{e.actor}</span>
+              <li key={e.id} className="flex flex-wrap gap-x-3 px-3 py-1.5">
+                <span className="t-dim w-16 shrink-0">{e.time}</span>
+                <span className="t-key">{e.action}</span>
+                <span className="wrap-anywhere min-w-0 flex-1">{e.detail}</span>
+                <span className="t-dim">{e.actor}</span>
               </li>
             ))}
           </ol>
@@ -857,7 +857,7 @@ function RulesForm() {
     log('Expiry rules updated', `v${res.state.rules.version}: ${res.change}`, 'info', 'inventory')
     notify(`Rules v${res.state.rules.version} saved — lots re-classified (demo)`, 'nv')
   }
-  const field = 'h-9 w-full rounded-md border border-control bg-deck px-2.5 text-[13px] text-fg outline-none focus:border-accent disabled:opacity-70'
+  const field = 'h-9 w-full rounded-md border border-field bg-deck px-2.5 text-[13px] text-fg outline-none focus:border-accent disabled:opacity-70'
   return (
     <Panel eyebrow={`Rules v${r.version} · updated ${clock(r.updatedAt)} by ${r.updatedBy}`} title="Thresholds & cadence">
       <form onSubmit={save} noValidate aria-describedby={error ? ids.e : undefined} className="space-y-3">

@@ -38,7 +38,7 @@ export function ConnectorMonitor({ connector: c, dataset, className, level = 2 }
         ))}
       </dl>
       {c.lastRun.error && (
-        <div className={cx('mt-3 rounded-md border px-3 py-2.5 text-[13px]', failed ? 'border-crit/45 bg-crit/[0.06]' : 'border-warn/45 bg-warn/[0.06]')}>
+        <div className={cx('mt-3 rounded-md border px-3 py-2.5 text-[13px]', failed ? 'border-crit-line bg-crit-bg' : 'border-warn-line bg-warn-bg')}>
           <p className="font-medium text-fg">{c.lastRun.errorKind === 'schema' ? 'Schema error' : c.lastRun.errorKind === 'quality' ? 'Validation error' : 'Run error'}</p>
           <p className="wrap-anywhere mt-0.5 text-fg-2">{c.lastRun.error}</p>
           {c.lastRun.action && (

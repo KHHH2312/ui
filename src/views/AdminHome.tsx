@@ -410,7 +410,7 @@ function ActivityFeed() {
           Actions in modules you can open appear here as they happen.
         </EmptyState>
       ) : (
-        <ol className="divide-y divide-line" aria-live={frozen ? 'off' : 'polite'} aria-label="Activity events, newest first">
+        <ol className="terminal m-3 divide-y divide-line" aria-live={frozen ? 'off' : 'polite'} aria-label="Activity events, newest first">
           {shown.map((e) => (
             <li key={e.id} className="flex gap-3 px-4 py-2.5">
               <StatusDot tone={e.tone} className="mt-1.5" />

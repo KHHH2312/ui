@@ -8,59 +8,78 @@
  */
 
 @theme {
-  /* ---------- Primitive layer (raw values) ---------- */
-  --graphite-950: #080c12;
-  --graphite-925: #0b1119;
-  --graphite-900: #0e1520;
-  --graphite-850: #141d2b;
-  --graphite-800: #172131;
-  --graphite-750: #1c2636;
-  --graphite-700: #26344a;
-  --slate-control: #5e6e85;
-  --ink-50: #f1f5f9;
-  --ink-200: #cbd5e1;
-  --ink-400: #94a3b8;
-  --ink-450: #8494aa;
+  /* ---------- Primitive layer (raw values) — Deep Obsidian & Industrial Hardware ---------- */
+  --obsidian-canvas: #080b10;
+  --obsidian-well: #0a0f17;
+  --obsidian-e1: #0e141e;
+  --obsidian-e2: #151e2d;
+  --obsidian-e3: #1a2436;
+  --obsidian-terminal: #040608;
+  --hairline-07: rgb(255 255 255 / 0.07);
+  --hairline-10: rgb(255 255 255 / 0.1);
+  --hairline-12: rgb(255 255 255 / 0.12);
+  --hairline-15: rgb(255 255 255 / 0.15);
+  --ink-high: #f8fafc;
+  --ink-body: #cbd5e1;
+  --ink-muted: #94a3b8;
+  --ink-faint: #8494aa;
+  --ink-subdued: #475569;
   --nvidia-500: #76b900;
-  --nvidia-400: #9bd62b;
-  --nvidia-950: #0a1200;
-  --cyan-400: #22d3ee;
-  --amber-400: #f5b53d;
-  --red-400: #f87171;
+  --nvidia-400: #88d400;
+  --telemetry-ice: #38bdf8;
+  --amber-500: #f59e0b;
+  --amber-300: #fcd34d;
+  --amber-bg: #261a08;
+  --amber-line: #78350f;
+  --red-500: #ef4444;
   --red-300: #fca5a5;
-  --red-950: #1a0505;
+  --red-bg: #2a1215;
+  --red-line: #7f1d1d;
   --lime-200: #d9f99d;
   --bronze-400: #c08a52;
   --silver-400: #a3b1c2;
   --gold-400: #d9b44a;
 
   /* ---------- Semantic layer (Tailwind utilities) ---------- */
-  --font-sans: 'Fira Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Fira Code Variable', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-sans: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono Variable', 'JetBrains Mono', 'SF Mono', ui-monospace, Menlo, monospace;
 
-  --color-canvas: var(--graphite-950);
-  --color-deck: var(--graphite-925);
-  --color-surface: var(--graphite-900);
-  --color-raised: var(--graphite-850);
-  --color-overlay: var(--graphite-800);
-  --color-line: var(--graphite-750);
-  --color-line-2: var(--graphite-700);
-  --color-control: var(--slate-control);
+  --radius-sm: 4px;
+  --radius-md: 4px;
+  --radius-lg: 6px;
+  --radius-xl: 8px;
 
-  --color-fg: var(--ink-50);
-  --color-fg-2: var(--ink-200);
-  --color-muted: var(--ink-400);
-  --color-faint: var(--ink-450);
+  --color-canvas: var(--obsidian-canvas);
+  --color-deck: var(--obsidian-well);
+  --color-surface: var(--obsidian-e1);
+  --color-raised: var(--obsidian-e2);
+  --color-overlay: var(--obsidian-e3);
+  --color-terminal: var(--obsidian-terminal);
+  --color-line: var(--hairline-07);
+  --color-line-2: var(--hairline-12);
+  --color-control: var(--hairline-15);
+  --color-field: var(--hairline-10);
+
+  --color-fg: var(--ink-high);
+  --color-fg-2: var(--ink-body);
+  --color-muted: var(--ink-muted);
+  --color-faint: var(--ink-faint);
+  --color-subdued: var(--ink-subdued);
 
   --color-accent: var(--nvidia-500);
   --color-accent-2: var(--nvidia-400);
-  --color-on-accent: var(--nvidia-950);
+  --color-on-accent: var(--obsidian-canvas);
   --color-ok: var(--nvidia-500);
-  --color-info: var(--cyan-400);
-  --color-warn: var(--amber-400);
-  --color-crit: var(--red-400);
+  --color-info: var(--telemetry-ice);
+  --color-warn: var(--amber-500);
+  --color-warn-2: var(--amber-300);
+  --color-warn-bg: var(--amber-bg);
+  --color-warn-line: var(--amber-line);
+  --color-crit: var(--red-500);
   --color-crit-2: var(--red-300);
-  --color-on-crit: var(--red-950);
+  --color-crit-bg: var(--red-bg);
+  --color-crit-line: var(--red-line);
+  --color-on-crit: var(--obsidian-canvas);
   --color-ring: var(--lime-200);
   /* Medallion tiers — used only as thin tier markers (never as status). */
   --color-tier-bronze: var(--bronze-400);
@@ -130,7 +149,8 @@
 :root {
   --panel-bg: var(--color-surface);
   --panel-border: var(--color-line);
-  --panel-radius: 8px;
+  --panel-radius: 6px;
+  --panel-highlight: inset 0 1px 0 0 rgb(255 255 255 / 0.05);
   --control-border: var(--color-control);
   --tab-indicator: var(--color-accent);
   --node-healthy: var(--color-ok);
@@ -140,7 +160,7 @@
   --dock-width: 400px;
   --dock-gap: 16px;
   --header-h: 60px;
-  --shadow-overlay: 0 24px 48px -16px rgb(0 0 0 / 0.65), 0 0 0 1px rgb(255 255 255 / 0.02);
+  --shadow-overlay: 0 16px 32px -12px rgb(0 0 0 / 0.7), inset 0 1px 0 0 rgb(255 255 255 / 0.05);
   --z-sidebar: 30;
   --z-header: 40;
   --z-dock: 45;
@@ -179,9 +199,28 @@
   h2,
   h3 {
     text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+  /* Inputs: matte well, hairline border, 1px accent focus glow. */
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):focus,
+  select:focus,
+  textarea:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 1px var(--color-accent), 0 0 0 4px rgb(118 185 0 / 0.12);
+  }
+  /* Tables: compact rows, faint zebra stripes, tabular numerals. */
+  table {
+    font-variant-numeric: tabular-nums;
+    line-height: 1.35;
+  }
+  tbody tr:nth-child(even) {
+    background-color: rgb(255 255 255 / 0.018);
+  }
+  tbody tr:hover {
+    background-color: rgb(255 255 255 / 0.03);
   }
   ::selection {
-    background: rgb(118 185 0 / 0.35);
+    background: rgb(118 185 0 / 0.3);
     color: var(--color-fg);
   }
   :focus-visible {
@@ -221,12 +260,13 @@
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--panel-radius);
+    box-shadow: var(--panel-highlight);
   }
   .eyebrow {
     font-family: var(--font-mono);
     font-size: 11px;
     line-height: 1.2;
-    letter-spacing: 0.12em;
+    letter-spacing: 0.05em;
     text-transform: uppercase;
     color: var(--color-muted);
     font-weight: 500;
@@ -264,12 +304,39 @@
     border-width: 0 1px 1px 0;
     border-bottom-right-radius: 8px;
   }
-  /* Controlled glow — primary CTA and critical emphasis only. */
+  /* No neon smears: emphasis is a crisp hairline + top highlight, never a blur. */
   .glow-accent {
-    box-shadow: 0 0 0 1px rgb(118 185 0 / 0.4), 0 6px 20px -8px rgb(118 185 0 / 0.55);
+    box-shadow: var(--panel-highlight);
   }
   .glow-crit {
-    box-shadow: 0 0 0 1px rgb(248 113 113 / 0.45), 0 6px 22px -10px rgb(248 113 113 / 0.55);
+    box-shadow: var(--panel-highlight);
+  }
+  /* Live-status ping: the only round, animated element in the system. */
+  .ping {
+    position: relative;
+  }
+  .ping::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: currentColor;
+    animation: pulse-ring 1.8s ease-out infinite;
+  }
+  /* Terminal / audit stdout well. */
+  .terminal {
+    background: var(--color-terminal);
+    border: 1px solid var(--color-line);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: #9fe0a8;
+  }
+  .terminal .t-dim {
+    color: var(--color-muted);
+  }
+  .terminal .t-key {
+    color: var(--color-info);
   }
   .shadow-overlay {
     box-shadow: var(--shadow-overlay);

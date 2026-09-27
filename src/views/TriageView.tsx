@@ -79,7 +79,7 @@ export function TriageView({ triage: t }: { triage: TriageController }) {
           <PipelineStrip stage={stage} gateState={gateState} />
 
           {t.notice && (
-            <div role="status" className="flex animate-rise items-center gap-3 rounded-lg border border-warn/50 bg-warn/[0.07] px-4 py-2.5">
+            <div role="status" className="flex animate-rise items-center gap-3 rounded-lg border border-warn-line bg-warn-bg px-4 py-2.5">
               <CloudOff className="size-4 shrink-0 text-warn" aria-hidden />
               <p className="flex-1 text-[13px] text-fg-2">{t.notice}</p>
               <button type="button" onClick={t.dismissNotice} className="rounded-sm p-1 text-muted hover:text-fg" aria-label="Dismiss notice">

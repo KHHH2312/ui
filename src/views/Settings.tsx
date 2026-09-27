@@ -62,7 +62,7 @@ function ProfileTab({ canEdit }: { canEdit: boolean }) {
     log('Company profile updated', draft.name.trim(), 'info', 'settings')
     notify('Company profile saved (demo store)', 'nv')
   }
-  const field = 'h-10 w-full rounded-md border border-control bg-deck px-3 text-sm text-fg outline-none focus:border-accent disabled:opacity-70'
+  const field = 'h-10 w-full rounded-md border border-field bg-deck px-3 text-sm text-fg outline-none focus:border-accent disabled:opacity-70'
   return (
     <div className="grid gap-4 @4xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
       <Panel eyebrow="Profile" title={t.name}>
@@ -101,7 +101,7 @@ function ProfileTab({ canEdit }: { canEdit: boolean }) {
             <label htmlFor={ids.c} className="mb-1 block text-xs font-medium text-muted">
               Operational context (used to ground AI answers)
             </label>
-            <textarea id={ids.c} disabled={!canEdit} rows={3} value={draft.context} onChange={(e) => setDraft((d) => ({ ...d, context: e.target.value }))} className="w-full rounded-md border border-control bg-deck px-3 py-2 text-sm text-fg outline-none focus:border-accent disabled:opacity-70" />
+            <textarea id={ids.c} disabled={!canEdit} rows={3} value={draft.context} onChange={(e) => setDraft((d) => ({ ...d, context: e.target.value }))} className="w-full rounded-md border border-field bg-deck px-3 py-2 text-sm text-fg outline-none focus:border-accent disabled:opacity-70" />
           </div>
           {error && (
             <p id={ids.e} role="alert" className="text-[13px] text-crit-2">

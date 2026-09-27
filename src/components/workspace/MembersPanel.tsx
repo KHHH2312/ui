@@ -170,7 +170,7 @@ export function InviteMemberForm({ members, setMembers, onEvent }: Required<Pick
     setEmail('')
     setError(null)
   }
-  const input = 'h-10 w-full rounded-md border border-control bg-deck px-3 text-sm text-fg outline-none placeholder:text-faint focus:border-accent'
+  const input = 'h-10 w-full rounded-md border border-field bg-deck px-3 text-sm text-fg outline-none placeholder:text-faint focus:border-accent'
   return (
     <form onSubmit={invite} className="space-y-3" noValidate aria-describedby={error ? `${emailId}-err` : undefined}>
       <div className="grid gap-3 sm:grid-cols-2">

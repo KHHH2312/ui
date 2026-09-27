@@ -199,7 +199,7 @@ export function PipelinePanel({ connectors, gold, enabledModules, setConnectors,
       {warnings.length > 0 && (
         <ul className="space-y-2" aria-label="Ingestion warnings">
           {warnings.map((c) => (
-            <li key={c.id} className={cx('flex items-start gap-2.5 rounded-md border px-3 py-2.5 text-[13px]', c.lastRun.status === 'failed' ? 'border-crit/45 bg-crit/[0.06]' : 'border-warn/45 bg-warn/[0.06]')}>
+            <li key={c.id} className={cx('flex items-start gap-2.5 rounded-md border px-3 py-2.5 text-[13px]', c.lastRun.status === 'failed' ? 'border-crit-line bg-crit-bg' : 'border-warn-line bg-warn-bg')}>
               <CircleAlert className={cx('mt-0.5 size-4 shrink-0', c.lastRun.status === 'failed' ? 'text-crit' : 'text-warn')} aria-hidden />
               <span className="text-fg-2">
                 <span className="font-mono text-xs font-semibold text-muted">{c.kind}</span> · {c.warning}

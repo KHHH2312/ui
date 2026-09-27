@@ -107,10 +107,10 @@ export function AssistantDock({ open, onOpenChange, view, docked }: Props) {
           onClick={() => onOpenChange(true)}
           aria-expanded={false}
           aria-controls="assistant-dock"
-          className="shadow-overlay fixed bottom-4 right-4 flex h-12 items-center gap-2 rounded-full border border-accent/50 bg-overlay pl-3 pr-4 text-sm font-semibold text-fg transition-colors hover:border-accent hover:bg-raised"
+          className="shadow-overlay fixed bottom-4 right-4 flex h-11 items-center gap-2 rounded-md border border-accent/50 bg-surface pl-2 pr-3.5 text-sm font-semibold text-fg transition-colors hover:border-accent hover:bg-raised"
           style={{ zIndex: 'var(--z-dock)' }}
         >
-          <span className="grid size-7 place-items-center rounded-full bg-accent text-on-accent">
+          <span className="grid size-7 place-items-center rounded-sm bg-accent text-on-accent">
             <MessageSquareText className="size-4" aria-hidden />
           </span>
           Ask NEXUS
@@ -122,8 +122,8 @@ export function AssistantDock({ open, onOpenChange, view, docked }: Props) {
           ref={panelRef}
           aria-label="NEXUS assistant"
           className={cx(
-            'shadow-overlay fixed flex animate-dock-in flex-col overflow-hidden border border-line-2 bg-overlay',
-            docked ? 'bottom-4 right-4 top-[calc(var(--header-h)+12px)] w-[var(--dock-width)] rounded-xl' : 'inset-x-2 bottom-2 top-[calc(var(--header-h)+8px)] rounded-xl',
+            'shadow-overlay fixed flex animate-dock-in flex-col overflow-hidden border border-line-2 bg-surface',
+            docked ? 'bottom-4 right-4 top-[calc(var(--header-h)+12px)] w-[var(--dock-width)] rounded-lg' : 'inset-x-2 bottom-2 top-[calc(var(--header-h)+8px)] rounded-lg',
           )}
           style={{ zIndex: 'var(--z-dock)' }}
         >
@@ -231,7 +231,7 @@ export function AssistantDock({ open, onOpenChange, view, docked }: Props) {
                   onChange={(e) => setText(e.target.value)}
                   onKeyDown={onKeyDown}
                   placeholder="Type a question · Enter to send"
-                  className="min-h-[44px] min-w-0 flex-1 resize-none rounded-md border border-control bg-deck px-3 py-2 text-[13px] text-fg outline-none placeholder:text-faint focus:border-accent"
+                  className="min-h-[44px] min-w-0 flex-1 resize-none rounded-md border border-field bg-deck px-3 py-2 text-[13px] text-fg outline-none placeholder:text-faint focus:border-accent"
                 />
                 <button type="submit" disabled={pending || !text.trim()} className="grid size-11 shrink-0 place-items-center rounded-md bg-accent text-on-accent hover:bg-accent-2 disabled:bg-accent/40" aria-label="Send question">
                   <Send className="size-4" aria-hidden />

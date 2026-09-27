@@ -170,7 +170,7 @@ function Field({ id, label, icon, children }: { id: string; label: string; icon:
       <label htmlFor={id} className="mb-1.5 block text-xs font-medium text-muted">
         {label}
       </label>
-      <div className="flex items-center gap-2.5 rounded-md border border-control bg-deck pl-3 transition-colors focus-within:border-accent">
+      <div className="flex items-center gap-2.5 rounded-md border border-field bg-deck pl-3 transition-colors focus-within:border-accent">
         <span className="text-faint">{icon}</span>
         {children}
       </div>

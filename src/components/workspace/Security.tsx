@@ -21,7 +21,7 @@ export function IncidentList({ incidents, limit = 5, onSelect }: { incidents: Se
       {rows.map((i) => {
         const body = (
           <>
-            <span className="grid size-8 shrink-0 place-items-center rounded-md border border-crit/40 bg-crit/10 text-crit-2" aria-hidden>
+            <span className="grid size-8 shrink-0 place-items-center rounded-md border border-crit-line bg-crit-bg text-crit-2" aria-hidden>
               {i.stage === 'route' ? <UserRoundX className="size-4" /> : <Ban className="size-4" />}
             </span>
             <span className="min-w-0 flex-1">

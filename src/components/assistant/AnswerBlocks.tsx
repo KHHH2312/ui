@@ -25,7 +25,7 @@ export function AnswerBody({ view, source, resourceLabel, compact }: { view: Ans
         <Badge tone="info">{source === 'live' ? 'FastAPI /rag/query' : 'Local simulation'}</Badge>
       </div>
       {view.staleNotice && (
-        <p className="flex items-start gap-2 rounded-md border border-warn/50 bg-warn/10 px-3 py-2 text-[13px] text-warn">
+        <p className="flex items-start gap-2 rounded-md border border-warn-line bg-warn-bg px-3 py-2 text-[13px] text-warn">
           <TriangleAlert className="mt-0.5 size-4 shrink-0" aria-hidden />
           <span>
             <strong className="font-semibold">Stale data · </strong>
@@ -38,7 +38,7 @@ export function AnswerBody({ view, source, resourceLabel, compact }: { view: Ans
           <p key={i}>
             {s.text}
             {s.cites.map((c) => (
-              <sup key={c} className="num ml-0.5 rounded-sm bg-info/15 px-1 text-[11px] font-semibold text-info" aria-label={`source ${c}`}>
+              <sup key={c} className="num ml-0.5 rounded-sm border border-info/40 bg-info/10 px-1 text-[11px] font-bold text-info" aria-label={`source ${c}`}>
                 {c}
               </sup>
             ))}
@@ -55,10 +55,13 @@ export function AnswerBody({ view, source, resourceLabel, compact }: { view: Ans
           <p className="eyebrow mb-1.5">Sources</p>
           <ol className="space-y-1">
             {view.citations.map((c) => (
-              <li key={c.n} className="flex items-center gap-2 rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs">
-                <span className="num w-4 shrink-0 text-info">{c.n}</span>
-                {c.kind === 'pdf' ? <FileText className="size-3.5 shrink-0 text-muted" aria-hidden /> : <Database className="size-3.5 shrink-0 text-muted" aria-hidden />}
-                <span className="num wrap-anywhere min-w-0 flex-1 text-fg-2">{c.label}</span>
+              <li key={c.n} className="flex items-center gap-2 rounded-sm border border-line-2 bg-raised px-2 py-1 text-xs shadow-[inset_0_1px_0_0_rgb(255_255_255/0.05)]">
+                <span className="num grid h-5 min-w-5 shrink-0 place-items-center rounded-sm border border-info/40 bg-info/10 px-1 font-bold text-info">{c.n}</span>
+                {c.kind === 'pdf' ? <FileText className="size-3.5 shrink-0 text-info" aria-hidden /> : <Database className="size-3.5 shrink-0 text-info" aria-hidden />}
+                <span className="num wrap-anywhere min-w-0 flex-1 text-fg-2">
+                  {c.label.split(' · p.')[0]}
+                  {c.label.includes(' · p.') && <strong className="ml-1 font-bold text-fg">p.{c.label.split(' · p.')[1]}</strong>}
+                </span>
                 <span className="num flex shrink-0 items-center gap-1 text-muted">
                   <Clock className="size-3" aria-hidden />
                   {c.updatedAt}
@@ -89,7 +92,7 @@ export function AnswerBody({ view, source, resourceLabel, compact }: { view: Ans
           </ol>
           <p className="mt-2">Filters run before any text is composed. In production FastAPI applies them inside the vector query; cached answers are keyed by tenant + user + grants.</p>
           <p className="mt-2 font-medium text-fg-2">FastAPI /rag/query response shape</p>
-          <pre className="num wrap-anywhere mt-1 max-h-44 overflow-auto whitespace-pre-wrap rounded-sm border border-line bg-canvas p-2 text-[11px] text-fg-2">{JSON.stringify(view.response, null, 2)}</pre>
+          <pre className="terminal wrap-anywhere mt-1 max-h-44 overflow-auto whitespace-pre-wrap p-2 text-[11px]">{JSON.stringify(view.response, null, 2)}</pre>
         </details>
       )}
     </div>
@@ -98,7 +101,7 @@ export function AnswerBody({ view, source, resourceLabel, compact }: { view: Ans
 
 export function DeniedBlock({ decision, incident, query }: { decision: GateDecision; incident: SecurityIncident; query?: string }) {
   return (
-    <div role="alert" className="glow-crit rounded-lg border border-crit/60 bg-crit/10 p-3.5">
+    <div role="alert" className="glow-crit rounded-lg border border-crit-line bg-crit-bg p-3.5">
       <p className="flex items-center gap-2 font-mono text-sm font-bold tracking-[0.04em] text-crit-2">
         <Ban className="size-4 shrink-0" aria-hidden /> 403 · PRE-RETRIEVAL ACCESS DENIED
       </p>
@@ -107,15 +110,15 @@ export function DeniedBlock({ decision, incident, query }: { decision: GateDecis
         <strong className="font-semibold text-fg">{decision.resourceLabel}</strong>. {decision.reason}.
       </p>
       <ul className="mt-2.5 grid gap-1.5 text-xs sm:grid-cols-3">
-        <li className="rounded-md border border-crit/35 bg-canvas/60 px-2.5 py-1.5">
+        <li className="rounded-sm border border-crit-line bg-terminal px-2.5 py-1.5">
           <span className="block text-muted">Restricted chunks retrieved</span>
           <span className="num text-base font-bold text-fg">0</span>
         </li>
-        <li className="rounded-md border border-crit/35 bg-canvas/60 px-2.5 py-1.5">
+        <li className="rounded-sm border border-crit-line bg-terminal px-2.5 py-1.5">
           <span className="block text-muted">Sent to the model</span>
           <span className="text-sm font-bold text-fg">Nothing</span>
         </li>
-        <li className="rounded-md border border-crit/35 bg-canvas/60 px-2.5 py-1.5">
+        <li className="rounded-sm border border-crit-line bg-terminal px-2.5 py-1.5">
           <span className="block text-muted">Security incident</span>
           <span className="num wrap-anywhere text-xs font-semibold text-fg">{incident.id}</span>
         </li>
@@ -130,7 +133,7 @@ export function DeniedBlock({ decision, incident, query }: { decision: GateDecis
 export function ErrorBlock({ message, onRetry, fallback, resourceLabel }: { message: string; onRetry?: () => void; fallback: AnswerView; resourceLabel: string }) {
   return (
     <div className="space-y-3">
-      <div role="alert" className="rounded-lg border border-warn/50 bg-warn/10 p-3 text-[13px] text-fg-2">
+      <div role="alert" className="rounded-lg border border-warn-line bg-warn-bg p-3 text-[13px] text-fg-2">
         <p className="flex items-center gap-2 font-semibold text-warn">
           <TriangleAlert className="size-4" aria-hidden /> Couldn't reach FastAPI /rag/query
         </p>

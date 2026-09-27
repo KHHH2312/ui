@@ -127,7 +127,7 @@ export function TransportationView() {
 
 function StaleBanner({ ctl }: { ctl: ShipCtl }) {
   return (
-    <div role="status" className="flex items-start gap-3 rounded-lg border border-warn/55 bg-warn/[0.08] px-4 py-2.5">
+    <div role="status" className="flex items-start gap-3 rounded-lg border border-warn-line bg-warn-bg px-4 py-2.5">
       <TriangleAlert className="mt-0.5 size-4 shrink-0 text-warn" aria-hidden />
       <p className="min-w-0 flex-1 text-[13px] text-fg-2">
         <strong className="font-semibold text-warn">ETAs are stale. </strong>
@@ -239,7 +239,7 @@ function DriverToday({ ctl, tasks, setTasks, onDetail }: { ctl: ShipCtl; tasks: 
                 <dd className="num mt-0.5 text-base font-semibold text-fg">{current.pallets} plt</dd>
               </div>
             </dl>
-            <p className="flex items-start gap-2 rounded-md border border-warn/40 bg-warn/[0.06] px-3 py-2 text-[13px] text-fg-2">
+            <p className="flex items-start gap-2 rounded-md border border-warn-line bg-warn-bg px-3 py-2 text-[13px] text-fg-2">
               <Package className="mt-0.5 size-4 shrink-0 text-warn" aria-hidden />
               {current.handling}
             </p>
@@ -447,7 +447,7 @@ function DispatchBoard({ ctl, onDetail }: { ctl: ShipCtl; onDetail: (id: string)
                 </td>
                 <td className="px-3 py-2">
                   {ctl.canManage ? (
-                    <select aria-label={`Driver for ${sh.id}`} value={sh.driverId ?? ''} onChange={(e) => ctl.assign(sh, e.target.value)} className="h-8 rounded-md border border-control bg-deck px-2 text-xs text-fg-2">
+                    <select aria-label={`Driver for ${sh.id}`} value={sh.driverId ?? ''} onChange={(e) => ctl.assign(sh, e.target.value)} className="h-8 rounded-md border border-field bg-deck px-2 text-xs text-fg-2">
                       <option value="">Unassigned</option>
                       {ctl.drivers.map((d) => (
                         <option key={d.userId} value={d.userId}>
@@ -461,7 +461,7 @@ function DispatchBoard({ ctl, onDetail }: { ctl: ShipCtl; onDetail: (id: string)
                 </td>
                 <td className="px-3 py-2">
                   {ctl.canUpdate ? (
-                    <select aria-label={`Status for ${sh.id}`} value={sh.status} onChange={(e) => ctl.setStatus(sh, e.target.value as ShipmentStatus)} className="h-8 rounded-md border border-control bg-deck px-2 text-xs text-fg-2">
+                    <select aria-label={`Status for ${sh.id}`} value={sh.status} onChange={(e) => ctl.setStatus(sh, e.target.value as ShipmentStatus)} className="h-8 rounded-md border border-field bg-deck px-2 text-xs text-fg-2">
                       {ALL_STATUS.map((s) => (
                         <option key={s}>{s}</option>
                       ))}

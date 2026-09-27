@@ -45,13 +45,13 @@ export function Panel({ title, eyebrow, actions, children, className, bodyClassN
 }
 
 export function StatusDot({ tone = 'nv', pulse = false, className }: { tone?: Tone; pulse?: boolean; className?: string }) {
-  return <span aria-hidden="true" className={cx('inline-block size-2 shrink-0 rounded-full', TONE_BG[tone], pulse && 'animate-pulse-dot', className)} />
+  return <span aria-hidden="true" className={cx('inline-block size-2 shrink-0 rounded-full', TONE_BG[tone], pulse && 'ping', pulse && TONE_TEXT[tone], className)} />
 }
 
 const BADGE_TONE: Record<Tone, string> = {
   nv: 'border-accent/40 bg-accent/10 text-accent-2',
-  warn: 'border-warn/45 bg-warn/10 text-warn',
-  crit: 'border-crit/50 bg-crit/10 text-crit-2',
+  warn: 'border-warn-line bg-warn-bg text-warn',
+  crit: 'border-crit-line bg-crit-bg text-crit-2',
   info: 'border-info/40 bg-info/10 text-info',
   neutral: 'border-line-2 bg-raised text-fg-2',
 }
@@ -65,7 +65,7 @@ export function Badge({ tone = 'neutral', children, className, dot }: { tone?: T
         className,
       )}
     >
-      {dot && <StatusDot tone={tone} />}
+      {dot && <StatusDot tone={tone} pulse={tone !== 'neutral'} className="size-1.5" />}
       {children}
     </span>
   )
@@ -90,10 +90,10 @@ export function HealthBadge({ health, className, label }: { health: Health; clas
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
 const BTN_VARIANT: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-on-accent font-semibold hover:bg-accent-2 disabled:bg-accent/40',
-  secondary: 'border border-control text-fg-2 hover:bg-raised hover:text-fg disabled:opacity-50',
+  primary: 'bg-accent text-on-accent font-bold hover:bg-accent-2 hover:-translate-y-px disabled:translate-y-0 disabled:bg-accent/40',
+  secondary: 'border border-control text-fg hover:bg-raised disabled:opacity-50',
   ghost: 'text-muted hover:bg-raised hover:text-fg disabled:opacity-50',
-  danger: 'border border-crit/55 text-crit-2 hover:bg-crit/10 disabled:opacity-50',
+  danger: 'border border-crit-line bg-crit-bg text-crit-2 hover:border-crit disabled:opacity-50',
 }
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -108,7 +108,7 @@ export function Button({ variant = 'secondary', size = 'md', icon: Icon, iconRig
     <button
       type={type}
       className={cx(
-        'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-md transition-colors duration-150',
+        'inline-flex shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-sm transition-[background-color,border-color,color,transform] duration-150',
         size === 'sm' ? 'h-8 px-3 text-[13px]' : 'h-10 px-4 text-sm',
         variant !== 'primary' && 'font-medium',
         BTN_VARIANT[variant],
@@ -232,7 +232,7 @@ export function Switch({ checked, onChange, label, description, id, disabled }: 
         aria-describedby={description ? `${id}-desc` : undefined}
         disabled={disabled}
         onClick={() => onChange(!checked)}
-        className={cx('relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors disabled:opacity-50', checked ? 'border-accent/60 bg-accent/25' : 'border-control bg-deck')}
+        className={cx('relative inline-flex h-6 w-11 shrink-0 items-center rounded-full border transition-colors disabled:opacity-50', checked ? 'border-accent/60 bg-accent/25' : 'border-field bg-deck')}
       >
         <span className={cx('inline-block size-4 rounded-full transition-transform duration-200', checked ? 'translate-x-[22px] bg-accent' : 'translate-x-[3px] bg-muted')} />
       </button>

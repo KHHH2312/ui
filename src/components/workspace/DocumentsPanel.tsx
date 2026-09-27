@@ -136,7 +136,7 @@ export function DocumentTable({ docs, setDocs, readOnly }: Props) {
                 </div>
               </td>
               <td className="px-3 py-2">
-                <select aria-label={`Category for ${d.name}`} value={d.category} disabled={readOnly} onChange={(e) => update(d.id, { category: e.target.value })} className="h-8 rounded-md border border-control bg-deck px-2 text-xs text-fg-2 disabled:opacity-70">
+                <select aria-label={`Category for ${d.name}`} value={d.category} disabled={readOnly} onChange={(e) => update(d.id, { category: e.target.value })} className="h-8 rounded-md border border-field bg-deck px-2 text-xs text-fg-2 disabled:opacity-70">
                   {DOC_CATEGORIES.map((c) => (
                     <option key={c}>{c}</option>
                   ))}
@@ -151,7 +151,7 @@ export function DocumentTable({ docs, setDocs, readOnly }: Props) {
                     const [v, m] = e.target.value.split(':')
                     update(d.id, { visibility: v as DocVisibility, module: m as KbDocument['module'] })
                   }}
-                  className="h-8 rounded-md border border-control bg-deck px-2 text-xs text-fg-2 disabled:opacity-70"
+                  className="h-8 rounded-md border border-field bg-deck px-2 text-xs text-fg-2 disabled:opacity-70"
                 >
                   <option value="Company">Company-wide</option>
                   {MODULE_NAV.map((m) => (

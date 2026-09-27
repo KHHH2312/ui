@@ -86,7 +86,7 @@ export function Sidebar({ view, onNavigate, open, onClose }: Props) {
               <li key={item.id}>
                 <NavButton item={item} active={view === item.id} onClick={() => onNavigate(item.id)}>
                   {item.id === 'data' && ws.incidents.length > 0 && (
-                    <span className="num rounded-sm border border-crit/40 bg-crit/10 px-1.5 text-[11px] font-semibold text-crit-2">
+                    <span className="num rounded-sm border border-crit-line bg-crit-bg px-1.5 text-[11px] font-semibold text-crit-2">
                       {ws.incidents.length}
                       <span className="sr-only"> security incidents</span>
                     </span>

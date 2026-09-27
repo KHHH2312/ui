@@ -62,7 +62,7 @@ export function Drawer({ open, onClose, title, eyebrow, children, footer, width 
   if (!open) return null
   return createPortal(
     <div className="fixed inset-0" style={{ zIndex: 'var(--z-drawer)' }}>
-      <div className="absolute inset-0 animate-fade bg-canvas/70 backdrop-blur-[2px]" onClick={onClose} aria-hidden />
+      <div className="absolute inset-0 animate-fade bg-canvas/70" onClick={onClose} aria-hidden />
       <div
         ref={panelRef}
         role="dialog"

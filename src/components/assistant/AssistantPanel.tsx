@@ -102,7 +102,7 @@ export function AssistantPanel({ context, title, eyebrow = 'Permission-aware RAG
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="e.g. Which approvals does this award need?"
-              className="h-10 min-w-0 flex-1 rounded-md border border-control bg-deck px-3 text-sm text-fg outline-none placeholder:text-faint focus:border-accent"
+              className="h-10 min-w-0 flex-1 rounded-md border border-field bg-deck px-3 text-sm text-fg outline-none placeholder:text-faint focus:border-accent"
             />
             <button type="submit" disabled={busy || !text.trim()} className="flex h-10 items-center gap-1.5 rounded-md bg-accent px-3.5 text-sm font-semibold text-on-accent hover:bg-accent-2 disabled:bg-accent/40">
               <Send className="size-4" aria-hidden /> Ask

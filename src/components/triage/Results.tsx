@@ -12,7 +12,7 @@ export function CriticalBanner({ result }: { result: InferenceResult }) {
   if (result.summary.critical_count === 0) return null
   const isCrit = result.maintenance_ticket?.severity === 'critical' && result.summary.critical_count > 1
   return (
-    <div role="alert" className={cx('panel flex animate-rise flex-wrap items-center gap-3 px-4 py-3', isCrit ? 'glow-crit border-crit/60 bg-crit/[0.08]' : 'border-warn/50 bg-warn/[0.06]')}>
+    <div role="alert" className={cx('panel flex animate-rise flex-wrap items-center gap-3 px-4 py-3', isCrit ? 'glow-crit border-crit-line bg-crit-bg' : 'border-warn-line bg-warn-bg')}>
       <Siren className={cx('size-5 shrink-0', isCrit ? 'text-crit' : 'text-warn')} aria-hidden />
       <p className="min-w-0 flex-1 text-sm text-fg">
         <span className={cx('mr-2 font-mono text-xs font-bold uppercase tracking-[0.12em]', isCrit ? 'text-crit-2' : 'text-warn')}>{isCrit ? 'Critical' : 'Warning'}</span>
