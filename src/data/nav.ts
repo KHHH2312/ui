@@ -38,26 +38,26 @@ export interface NavItem {
 }
 
 export const PRIMARY_NAV: NavItem[] = [
-  { id: 'dashboard', label: 'Fleet Dashboard', icon: LayoutDashboard, hint: 'Executive fleet health overview' },
-  { id: 'triage', label: 'Autonomous Triage', icon: ShieldCheck, hint: 'AI triage & mitigation cockpit' },
+  { id: 'dashboard', label: 'Overview', icon: LayoutDashboard, hint: 'Company operations: map, alerts, next action' },
+  { id: 'triage', label: 'Triage preview', icon: ShieldCheck, hint: 'Autonomous Triage · simulated machinery cockpit' },
 ]
 
 export const MODULE_NAV: Array<NavItem & { id: ModuleId }> = [
   { id: 'manufacturing', label: 'Manufacturing', icon: Factory, hint: 'Lines, OEE, machinery health' },
-  { id: 'inventory', label: 'Inventory', icon: Boxes, hint: 'Stock, spares, reorder points' },
+  { id: 'inventory', label: 'Inventory', icon: Boxes, hint: 'Perishable Expiry Guard · simulated agent' },
   { id: 'procurement', label: 'Procurement', icon: ShoppingCart, hint: 'Purchase orders & suppliers' },
   { id: 'warehousing', label: 'Warehousing', icon: Warehouse, hint: 'Zones, docks, pick rates' },
   { id: 'distribution', label: 'Distribution', icon: Network, hint: 'DC network & fulfilment' },
   { id: 'transportation', label: 'Transportation', icon: Truck, hint: 'Shipments & carriers' },
-  { id: 'crm', label: 'Customer Service / CRM', icon: Headset, hint: 'Cases, SLAs, accounts' },
-  { id: 'it', label: 'Information Technology', icon: Server, hint: 'OT/IT services & integrations' },
+  { id: 'crm', label: 'Customer Service', icon: Headset, hint: 'CRM cases, SLAs, accounts' },
+  { id: 'it', label: 'IT Services', icon: Server, hint: 'OT/IT services & integrations' },
 ]
 
 export const WORKSPACE_NAV: Array<NavItem & { id: WorkspacePageId }> = [
-  { id: 'knowledge', label: 'Knowledge Base', icon: BookOpen, hint: 'Documents indexed for RAG' },
-  { id: 'data', label: 'Data & Pipelines', icon: Database, hint: 'Sources, Bronze → Silver → Gold' },
-  { id: 'team', label: 'Team', icon: Users, hint: 'Members, roles, module access' },
-  { id: 'settings', label: 'Company Settings', icon: Settings, hint: 'Profile, modules, audit' },
+  { id: 'knowledge', label: 'Knowledge', icon: BookOpen, hint: 'PDFs indexed for permission-aware RAG' },
+  { id: 'data', label: 'Data & Pipelines', icon: Database, hint: 'Sources, lineage, security incidents' },
+  { id: 'team', label: 'Team & Access', icon: Users, hint: 'Members, invitations, roles, audit' },
+  { id: 'settings', label: 'Settings', icon: Settings, hint: 'Profile, modules, integrations, security' },
 ]
 
 export const ALL_NAV: NavItem[] = [...PRIMARY_NAV, ...MODULE_NAV, ...WORKSPACE_NAV]

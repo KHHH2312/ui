@@ -1,12 +1,12 @@
-import { Ban, Check, Cpu, FileText, Lock, Minus, ShieldAlert, ShieldCheck, Table2 } from 'lucide-react'
+import { Check, Cpu, Eye, FileText, Lock, Minus, ShieldAlert, ShieldCheck, Table2 } from 'lucide-react'
+import { useState } from 'react'
 import type { ModuleId } from '../../data/nav.ts'
 import { navItem } from '../../data/nav.ts'
-import { can, roleDef } from '../../lib/access.ts'
+import { can } from '../../lib/access.ts'
 import { cx } from '../../lib/format.ts'
-import { useNotify } from '../../lib/toast.ts'
-import { ragState, type SecurityIncident } from '../../lib/workspace.ts'
+import { ragState } from '../../lib/workspace.ts'
 import { useWorkspace } from '../../lib/workspaceContext.ts'
-import { Badge, Eyebrow, Panel } from '../ui/primitives.tsx'
+import { Badge, Button, Panel } from '../ui/primitives.tsx'
 
 type Status = 'running' | 'simulated' | 'target'
 const STATUS: Record<Status, { label: string; tone: 'nv' | 'info' | 'neutral' }> = {
@@ -16,28 +16,29 @@ const STATUS: Record<Status, { label: string; tone: 'nv' | 'info' | 'neutral' }>
 }
 
 const NODES: Array<{ name: string; detail: string; status: Status; nvidia?: boolean }> = [
-  { name: 'React cockpit', detail: 'This UI · role-aware UX only', status: 'running' },
-  { name: 'FastAPI gateway', detail: 'Verified identity · tenant + action + scope authZ on every call', status: 'simulated' },
-  { name: 'Metadata ACL filter', detail: 'Tenant/role/module/scope filter BEFORE retrieval — the authorization control', status: 'simulated' },
-  { name: 'NVIDIA NIM on Brev', detail: 'Embeddings + LLM inference microservices on Brev GPUs', status: 'target', nvidia: true },
-  { name: 'NVIDIA NeMo Guardrails', detail: 'Topical boundaries & safe tool use — complements, never replaces, ACLs', status: 'target', nvidia: true },
-  { name: 'PLC/SCADA + CMMS', detail: 'Mitigation writes & work orders', status: 'simulated' },
+  { name: 'React UI', detail: 'This app · role-aware UX only', status: 'running' },
+  { name: 'FastAPI gateway', detail: 'Verified identity · tenant + action + scope checks on every call', status: 'simulated' },
+  { name: 'Metadata ACL filter', detail: 'Tenant / role / module / scope filter before retrieval', status: 'simulated' },
+  { name: 'NVIDIA NIM', detail: 'Embedding + LLM inference microservices', status: 'target', nvidia: true },
+  { name: 'NVIDIA NeMo Guardrails', detail: 'Topical and tool-use rails — complements, never replaces, the ACL', status: 'target', nvidia: true },
+  { name: 'SQLite prototype store', detail: 'Companies, members, shipments, quotations', status: 'simulated' },
 ]
 
+/** Request path with honest status labels: nothing marked "architecture target" is called by this demo. */
 export function ArchitectureStrip() {
   return (
-    <Panel eyebrow="Reference architecture · honest status labels" title="How a request flows" bodyClassName="p-3 sm:p-4">
-      <ol className="grid gap-2 sm:grid-cols-2 xl:grid-cols-6">
+    <Panel eyebrow="Reference architecture · honest status labels" title="How a request flows">
+      <ol className="grid gap-2 sm:grid-cols-2 @4xl:grid-cols-3 @6xl:grid-cols-6">
         {NODES.map((n, i) => {
           const st = STATUS[n.status]
           return (
-            <li key={n.name} className={cx('relative rounded-[5px] border p-3', n.nvidia ? 'border-nv/40 bg-nv/[0.04]' : 'border-line bg-deck/60')}>
-              <p className="num text-[10px] text-slate-500">{String(i + 1).padStart(2, '0')}</p>
-              <p className="mt-1 flex items-center gap-1.5 text-[13.5px] font-semibold text-white">
-                {n.nvidia && <Cpu className="size-3.5 text-nv" aria-hidden />}
+            <li key={n.name} className="rounded-lg border border-line bg-deck p-3">
+              <p className="num text-xs text-muted">{String(i + 1).padStart(2, '0')}</p>
+              <p className="mt-1 flex items-center gap-1.5 text-[13px] font-semibold text-fg">
+                {n.nvidia && <Cpu className="size-3.5 text-muted" aria-hidden />}
                 {n.name}
               </p>
-              <p className="mt-1 text-[11.5px] leading-snug text-slate-400">{n.detail}</p>
+              <p className="mt-1 text-xs leading-snug text-muted">{n.detail}</p>
               <Badge tone={st.tone} className="mt-2">
                 {st.label}
               </Badge>
@@ -45,39 +46,47 @@ export function ArchitectureStrip() {
           )
         })}
       </ol>
-      <p className="mt-3 flex items-start gap-2 text-[12px] text-slate-400">
-        <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-nv" aria-hidden />
-        Authorization = server-side tenant isolation + RBAC/ACL metadata filtering before retrieval. NeMo Guardrails adds topical and tool-execution safety on top. Nothing labelled “architecture target” is called by this demo.
+      <p className="mt-3 flex items-start gap-2 text-xs text-muted">
+        <ShieldCheck className="mt-0.5 size-3.5 shrink-0 text-ok" aria-hidden />
+        Authorization = server-side tenant isolation + role/ACL metadata filtering before retrieval. Guardrails add topical and tool-execution safety on top.
       </p>
     </Panel>
   )
 }
 
+const TIER: Record<'bronze' | 'silver' | 'gold' | 'serve', string> = {
+  bronze: 'var(--color-tier-bronze)',
+  silver: 'var(--color-tier-silver)',
+  gold: 'var(--color-tier-gold)',
+  serve: 'var(--color-info)',
+}
+
+/** The two connected data paths: records → Gold tables, documents → permission-tagged chunks. */
 export function DataPaths() {
   const { ws } = useWorkspace()
   const rag = ragState(ws.documents)
   const stale = ws.gold.filter((g) => g.stale)
-  const quarantined = ws.connectors.some((c) => c.lastRun.errorKind === 'quality')
-  const failed = ws.connectors.filter((c) => c.lastRun.status === 'failed')
+  const quarantined = ws.connectors.filter((c) => c.connected && c.lastRun.errorKind === 'quality').reduce((s, c) => s + c.errors, 0)
+  const failed = ws.connectors.filter((c) => c.connected && c.lastRun.status === 'failed')
   const lanes = [
     {
       icon: Table2,
       title: 'Operational records',
       steps: [
-        { k: 'Raw ingestion', sub: 'Bronze', color: '#b7793e', stat: `${ws.connectors.filter((c) => c.connected).length} sources · ${failed.length} failed run` },
-        { k: 'Validation & cleaning', sub: 'Silver', color: '#94a3b8', stat: quarantined ? '7 rows quarantined' : 'contracts OK' },
-        { k: 'Curated Gold tables', sub: 'Gold', color: '#76b900', stat: stale.length ? `${stale.map((s) => `${s.name}@${s.version}`).join(', ')} retained · STALE` : `${ws.gold.length} datasets current` },
-        { k: 'Permission-scoped queries', sub: 'tenant + action + scope', color: '#5cc8ff', stat: 'row filters per grant' },
+        { k: 'Raw ingestion', sub: 'Bronze', tier: TIER.bronze, stat: `${ws.connectors.filter((c) => c.connected).length} sources · ${failed.length} failed run${failed.length === 1 ? '' : 's'}`, bad: failed.length > 0 },
+        { k: 'Validation & cleaning', sub: 'Silver', tier: TIER.silver, stat: quarantined ? `${quarantined} rows quarantined` : 'contracts OK', bad: quarantined > 0 },
+        { k: 'Curated Gold tables', sub: 'Gold', tier: TIER.gold, stat: stale.length ? `${stale.map((s) => `${s.name}@${s.version}`).join(', ')} retained · stale` : `${ws.gold.length} datasets current`, bad: stale.length > 0 },
+        { k: 'Permission-scoped queries', sub: 'Serve', tier: TIER.serve, stat: 'row filters per grant', bad: false },
       ],
     },
     {
       icon: FileText,
-      title: 'PDFs / documents',
+      title: 'PDF documents',
       steps: [
-        { k: 'Upload', sub: 'tenant storage', color: '#b7793e', stat: `${ws.documents.length} PDFs` },
-        { k: 'Extraction & validation', sub: 'text + chunking', color: '#94a3b8', stat: `${rag.chunks} chunks` },
-        { k: 'Permission-tagged chunks', sub: 'ACL metadata', color: '#76b900', stat: 'tenant · modules · roles · scope' },
-        { k: 'Authorized retrieval', sub: 'NIM embeddings (target)', color: '#5cc8ff', stat: rag.ready ? 'RAG-ready' : `${rag.pending} indexing` },
+        { k: 'Upload', sub: 'Tenant storage', tier: TIER.bronze, stat: `${ws.documents.length} PDFs`, bad: false },
+        { k: 'Extraction & chunking', sub: 'Text', tier: TIER.silver, stat: `${rag.chunks.toLocaleString()} chunks`, bad: false },
+        { k: 'Permission-tagged chunks', sub: 'ACL metadata', tier: TIER.gold, stat: 'tenant · modules · roles · scope', bad: false },
+        { k: 'Authorized retrieval', sub: 'Serve', tier: TIER.serve, stat: rag.ready ? 'RAG-ready' : `${rag.pending} indexing`, bad: false },
       ],
     },
   ]
@@ -88,18 +97,15 @@ export function DataPaths() {
           const Icon = lane.icon
           return (
             <div key={lane.title}>
-              <p className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-white">
-                <Icon className="size-4 text-slate-400" aria-hidden /> {lane.title}
+              <p className="mb-2 flex items-center gap-2 text-[13px] font-semibold text-fg">
+                <Icon className="size-4 text-muted" aria-hidden /> {lane.title}
               </p>
-              <ol className="grid gap-2 md:grid-cols-4">
-                {lane.steps.map((s, i) => (
-                  <li key={s.k} className="relative rounded-[4px] border border-line bg-deck/70 p-3" style={{ borderTopColor: s.color, borderTopWidth: 2 }}>
-                    <p className="font-mono text-[10.5px] font-bold uppercase tracking-[0.12em]" style={{ color: s.color }}>
-                      {s.sub}
-                    </p>
-                    <p className="mt-1 text-[13px] font-medium text-white">{s.k}</p>
-                    <p className={cx('num mt-1 text-[11.5px]', s.stat.includes('STALE') ? 'font-semibold text-warn' : 'text-slate-400')}>{s.stat}</p>
-                    {i < 3 && <span className="absolute -right-2 top-1/2 z-10 hidden -translate-y-1/2 font-mono text-nv md:block" aria-hidden>›</span>}
+              <ol className="grid gap-2 @2xl:grid-cols-4">
+                {lane.steps.map((s) => (
+                  <li key={s.k} className="rounded-md border border-line bg-deck p-3" style={{ borderTopColor: s.tier, borderTopWidth: 2 }}>
+                    <p className="eyebrow">{s.sub}</p>
+                    <p className="mt-1 text-[13px] font-medium text-fg">{s.k}</p>
+                    <p className={cx('num wrap-anywhere mt-1 text-xs', s.bad ? 'font-medium text-warn' : 'text-muted')}>{s.stat}</p>
                   </li>
                 ))}
               </ol>
@@ -111,116 +117,81 @@ export function DataPaths() {
   )
 }
 
-export function SecurityIncidentLog({ limit }: { limit?: number }) {
-  const { ws } = useWorkspace()
-  const rows = [...ws.incidents].sort((a, b) => b.at.localeCompare(a.at)).slice(0, limit)
-  const newest = rows[0]?.id
+const CONNECTOR_MODULE: Record<string, ModuleId> = { erp: 'procurement', wms: 'inventory', tms: 'transportation', crm: 'crm', scada: 'manufacturing', s3: 'it' }
+
+/** Configuring a connection and reading its business records are separate grants. */
+export function PermissionSeparation() {
+  const { ws, perms, me } = useWorkspace()
+  const canConfigure = can(perms, 'data', 'configure')
+  const [tried, setTried] = useState<Record<string, 'ok' | 'denied'>>({})
   return (
-    <Panel
-      eyebrow="Real-time · shared across personas"
-      title="Security incident log"
-      actions={<Badge tone={rows.length ? 'crit' : 'nv'} dot>{rows.length} denied</Badge>}
-      bodyClassName="overflow-x-auto p-0"
-    >
-      {rows.length === 0 ? (
-        <p className="p-5 text-[13px] text-slate-400">No denied requests yet.</p>
-      ) : (
-        <table className="w-full min-w-[820px] text-left text-[12.5px]">
+    <Panel eyebrow={`Acting as ${me.name}`} title="Configure connection ≠ read business data" bodyClassName="p-0">
+      <div className="overflow-x-auto">
+        <table className="w-full min-w-[560px] text-left text-[13px]">
+          <caption className="sr-only">Per connector: whether you can configure it and whether you can read its business records</caption>
           <thead>
             <tr className="border-b border-line">
-              {['Time', 'Tenant', 'User / role', 'Requested resource', 'Decision', 'Reason', 'Retrieved'].map((h) => (
-                <th key={h} scope="col" className="eyebrow px-3 py-2.5 text-[10px] font-medium">
-                  {h}
+              {['Connector', 'Configure', 'Read records', ''].map((h) => (
+                <th key={h} scope="col" className="eyebrow px-3 py-2.5 font-medium">
+                  {h || <span className="sr-only">Actions</span>}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody aria-live="polite">
-            {rows.map((r: SecurityIncident) => (
-              <tr key={r.id} className={cx('border-b border-line/60 last:border-0', r.id === newest && 'animate-rise bg-crit/[0.06]')}>
-                <td className="num whitespace-nowrap px-3 py-2.5 text-slate-300">{new Date(r.at).toLocaleTimeString('en-GB', { hour12: false })}</td>
-                <td className="num px-3 py-2.5 text-slate-400">{r.tenantId}</td>
-                <td className="px-3 py-2.5">
-                  <p className="text-white">{r.userName}</p>
-                  <p className="text-[11px] text-slate-500">{r.roles.map((x) => roleDef(x).label).join(' + ')}</p>
-                </td>
-                <td className="px-3 py-2.5">
-                  <p className="text-slate-200">{r.requestedResource}</p>
-                  <p className="max-w-[220px] truncate text-[11px] text-slate-500">“{r.query}”</p>
-                </td>
-                <td className="px-3 py-2.5">
-                  <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold text-crit">
-                    <Ban className="size-3" aria-hidden /> 403 {r.decision}
-                  </span>
-                  <p className="text-[10.5px] text-slate-500">{r.stage}</p>
-                </td>
-                <td className="max-w-[240px] px-3 py-2.5 text-slate-300">{r.reason}</td>
-                <td className="num px-3 py-2.5 text-slate-300">
-                  {r.chunksRetrieved} chunks
-                  <p className="text-[10.5px] text-slate-500">0 sent to model</p>
-                </td>
-              </tr>
-            ))}
+          <tbody>
+            {ws.connectors.map((c) => {
+              const mod = CONNECTOR_MODULE[c.id]
+              const read = can(perms, mod, 'read_records')
+              const t = tried[c.id]
+              return (
+                <tr key={c.id} className="border-b border-line/60 last:border-0">
+                  <td className="px-3 py-2">
+                    <p className="text-fg">{c.kind}</p>
+                    <p className="text-xs text-muted">→ {navItem(mod).label}</p>
+                  </td>
+                  <td className="px-3 py-2">
+                    {canConfigure ? (
+                      <span className="flex items-center gap-1.5 text-xs text-fg-2">
+                        <Check className="size-4 text-ok" aria-hidden /> Allowed
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-xs text-muted">
+                        <Minus className="size-4" aria-hidden /> No
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    {read ? (
+                      <span className="flex items-center gap-1.5 text-xs text-fg-2">
+                        <Check className="size-4 text-ok" aria-hidden /> Allowed
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-xs text-warn">
+                        <Lock className="size-4" aria-hidden /> Denied
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    {t ? (
+                      <span className={cx('text-xs', t === 'ok' ? 'text-fg-2' : 'text-warn')} role="status">
+                        {t === 'ok' ? '5 sample rows (mock)' : '403 · schema & health only'}
+                      </span>
+                    ) : (
+                      <Button size="sm" variant="ghost" icon={Eye} onClick={() => setTried((x) => ({ ...x, [c.id]: read ? 'ok' : 'denied' }))} aria-label={`Preview ${c.kind} rows`}>
+                        Preview rows
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
-      )}
-    </Panel>
-  )
-}
-
-const CONNECTOR_MODULE: Record<string, ModuleId> = { erp: 'procurement', wms: 'inventory', tms: 'transportation', crm: 'crm', scada: 'manufacturing', s3: 'it' }
-
-/** Shows that configuring a connection and reading its business records are separate grants. */
-export function PermissionSeparation() {
-  const { ws, perms, me } = useWorkspace()
-  const notify = useNotify()
-  const canConfigure = can(perms, 'data', 'configure')
-  return (
-    <Panel eyebrow={`Acting as ${me.name}`} title="Configure connection ≠ read business data" bodyClassName="p-0">
-      <table className="w-full text-left text-[12.5px]">
-        <thead>
-          <tr className="border-b border-line">
-            {['Connector', 'Configure connection', 'Read business records', ''].map((h) => (
-              <th key={h} scope="col" className="eyebrow px-3 py-2.5 text-[10px] font-medium">
-                {h}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {ws.connectors.map((c) => {
-            const mod = CONNECTOR_MODULE[c.id]
-            const read = can(perms, mod, 'read_records')
-            return (
-              <tr key={c.id} className="border-b border-line/60 last:border-0">
-                <td className="px-3 py-2.5">
-                  <p className="text-white">{c.kind}</p>
-                  <p className="text-[11px] text-slate-500">→ {navItem(mod).label}</p>
-                </td>
-                <td className="px-3 py-2.5">{canConfigure ? <Check className="size-4 text-nv" aria-label="allowed" /> : <Minus className="size-4 text-slate-600" aria-label="denied" />}</td>
-                <td className="px-3 py-2.5">{read ? <Check className="size-4 text-nv" aria-label="allowed" /> : <Lock className="size-4 text-warn" aria-label="denied" />}</td>
-                <td className="px-3 py-2.5 text-right">
-                  <button
-                    type="button"
-                    onClick={() => notify(read ? `Previewing 5 ${c.kind} records (mock)` : `403 · read_records on ${navItem(mod).label} not granted — schema & health only`, read ? 'nv' : 'warn')}
-                    className={cx('rounded-[3px] px-2 py-1 font-mono text-[10.5px] font-semibold uppercase tracking-[0.06em] ring-1', read ? 'text-nv ring-nv/40 hover:bg-nv/10' : 'text-slate-400 ring-line-strong hover:text-warn')}
-                  >
-                    Preview rows
-                  </button>
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-      <p className="flex items-start gap-2 border-t border-line px-3 py-2.5 text-[11.5px] text-slate-400">
+      </div>
+      <p className="flex items-start gap-2 border-t border-line px-3 py-2.5 text-xs text-muted">
         <ShieldAlert className="mt-0.5 size-3.5 shrink-0 text-warn" aria-hidden />
-        Data Architects manage connections, schemas and pipeline health without being able to read the business records flowing through them.
+        Data architects manage connections, schemas and pipeline health without reading the business records flowing through them.
       </p>
     </Panel>
   )
-}
-
-export function IncidentsEyebrow() {
-  return <Eyebrow>Security</Eyebrow>
 }

@@ -137,4 +137,9 @@ export const ENDPOINTS = {
   inventory: '/inventory',
   triageInfer: '/triage/infer',
   securityEvents: '/audit/security-events',
+  expiryLots: '/inventory/expiry/lots',
+  expiryActions: '/inventory/expiry/actions',
+  expiryDecision: '/inventory/expiry/actions/{id}/decision',
+  expiryRules: '/inventory/expiry/rules',
+  expiryRuns: '/inventory/expiry/runs',
 } as const

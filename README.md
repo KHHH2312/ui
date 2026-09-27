@@ -29,6 +29,32 @@ Faster path: on the company-choice screen, **Skip — open the pre-configured de
 
 ---
 
+## Rebuild highlights (role-adaptive workspaces)
+
+- **One role-aware model** (`src/lib/insights.ts`) feeds every dashboard, the supply-chain system map, alerts and the assistant. Blocks a role may not read arrive as `null` — nothing is hidden with CSS.
+- **Tabbed workspaces** with WAI-ARIA tabs and URL state (`#/view/tab`):
+  - Overview: Overview · Live Operations · AI Briefing · Security
+  - Transportation: Today · Deliveries · AI Briefing · Exceptions (driver or dispatch variant)
+  - Procurement: Overview · Suppliers · Quotations · AI Comparison
+  - Inventory — Perishable Expiry Guard: Overview · At-Risk Lots · Agent Actions · Rules & Audit
+  - Knowledge: Documents · Ingestion Status · Ask Company
+  - Team & Access: Members · Invitations · Roles & Permissions · Audit
+  - Settings: Company Profile · Enabled Modules · Integrations · Security
+  - Data & Pipelines (Data Architect): Sources · Pipeline Health · Security Incidents
+- **Supply-chain system map** (`src/components/map/SystemMap.tsx`): hub and 8 nodes with health, broken-flow markers, legend, freshness, keyboard-operable details drawer. There is an executive projection and a technical (lineage/diagnostics) projection.
+- **Docked assistant** (`src/components/assistant/AssistantDock.tsx`):
+  - Available on every authenticated page; docks beside the page on wide screens and opens as a sheet on small ones.
+  - Knows tenant, role and module; offers quick prompts, including red negative tests.
+  - Shows loading, empty, error and 403 states; history is stored per tenant + user + grants.
+- **Perishable Expiry Guard** (`src/data/expiry.ts`, `src/lib/expiry.ts`, `src/views/Inventory.tsx`):
+  - A simulated autonomous agent that scans lot expiry on a schedule, scores risk, and proposes FEFO, dispatch, markdown, quarantine, donation and supplier-return actions.
+  - Every action requires human approval; external actions are only "queued" in the demo store.
+  - Data Architects get lineage, checks, runs and redacted event metadata. Procurement sees supplier returns only. Drivers are denied.
+- **Product story** cards on Login, the workspace chooser and the Admin overview ("Why it matters"), with live, role-visible proof points.
+- **Design system**: generated with the UI/UX Pro Max skill pack (installed under `.claude/skills/`) and curated in `design-system/nexus-ops-cockpit/`. Three-layer tokens live in `src/index.css`.
+
+Everything outside Transportation and Procurement's FastAPI contract runs on the local mock store and is labelled *simulated*, *sample data* or *architecture target*. **Frontend checks are UX only — they are not a security boundary.**
+
 ## Architecture
 
 ```

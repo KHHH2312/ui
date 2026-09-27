@@ -78,7 +78,7 @@ export default function App() {
   else screen = <WorkspaceChoice key="choice" session={session} onEnter={enter} onSetup={() => setSetup(true)} onLogout={logout} />
 
   return (
-    <div className="atmosphere noise min-h-screen">
+    <div className="ambient min-h-dvh">
       <Suspense fallback={null}>{screen}</Suspense>
     </div>
   )

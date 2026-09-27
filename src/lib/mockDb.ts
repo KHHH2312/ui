@@ -1,5 +1,5 @@
 import { effectivePermissions, type Member, type RoleId } from './access.ts'
-import { acceptInvite, demoWorkspace, DEMO_INVITES, workspaceFromInvite, type InviteCode, type Workspace } from './workspace.ts'
+import { acceptInvite, demoWorkspace, DEMO_INVITES, normalizeWorkspace, workspaceFromInvite, type InviteCode, type Workspace } from './workspace.ts'
 
 /**
  * LOCAL MOCK of the FastAPI + SQLite backend (companies, memberships,
@@ -40,7 +40,8 @@ export function saveWorkspace(ws: Workspace) {
 }
 
 export function loadWorkspace(tenantId: string): Workspace | null {
-  return read().workspaces[tenantId] ?? null
+  const ws = read().workspaces[tenantId]
+  return ws ? normalizeWorkspace(ws) : null
 }
 
 export interface Membership {
@@ -65,7 +66,7 @@ export function lookupInvite(input: string): { invite: InviteCode; ws: Workspace
   const code = (raw.match(/(?:code=|invite\/)([A-Za-z0-9-]+)/)?.[1] ?? raw).toUpperCase()
   for (const ws of Object.values(read().workspaces)) {
     const inv = ws.invites?.find((i) => i.code === code)
-    if (inv) return { invite: inv, ws }
+    if (inv) return { invite: inv, ws: normalizeWorkspace(ws) }
   }
   const demo = DEMO_INVITES.find((i) => i.code === code)
   if (!demo) return null

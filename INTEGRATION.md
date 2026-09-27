@@ -158,3 +158,22 @@ The frontend's permission checks, navigation filtering, **View as** persona prev
 ## 8. Rollback
 
 If anything misbehaves during the demo, set `VITE_USE_MOCK=true` in `frontend/.env.local` and restart `npm run dev` (or rebuild). The app returns to fully local mock data with no backend dependency. At runtime, the Triage rail's `USE_MOCK` switch does the same for inference.
+
+## 9. Perishable Expiry Guard — endpoints for the backend team (not implemented here)
+
+The Inventory workspace currently runs on the local mock store (`src/data/expiry.ts`). Typed contracts are in `src/lib/apiContract.ts`, and route names are in `ENDPOINTS` (`src/lib/api.ts`):
+
+| Method | Path | Notes |
+|---|---|---|
+| GET | `/inventory/expiry/lots` | Lots with `days_remaining`, `severity`, `value_at_risk`, `source_version`, `as_of`. Requires `inventory:read_records`. |
+| GET | `/inventory/expiry/actions` | Agent proposals. Supplier returns (`route: "procurement"`) are also readable with `procurement:read_records`, without other lot data. |
+| POST | `/inventory/expiry/actions/{id}/decision` | `{ decision }`. Requires `inventory:manage`; supplier returns also accept `procurement:manage`. External actions must never execute without this human decision. |
+| GET/PUT | `/inventory/expiry/rules` | Thresholds and cadence; version every change and audit it. |
+| GET | `/inventory/expiry/runs` | Scan history plus validation failures. Metadata only — readable with `inventory:configure` / `data:configure`. |
+
+RAG rules for expiry questions:
+- Lot and action records are tagged `modules=[inventory]`; supplier-return actions are tagged `[inventory, procurement]`.
+- The shelf-life policy is company-wide.
+- Drivers, procurement and data architects must receive **403 before retrieval** for lot-level questions. Data roles may ask about the feed as metadata only.
+
+No backend code, schema or infrastructure is part of this repository.

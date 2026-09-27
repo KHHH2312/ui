@@ -1,6 +1,7 @@
+import { seedExpiry, type ExpiryState } from '../data/expiry.ts'
 import { SHIPMENTS, STOCK, type Shipment, type StockItem } from '../data/logistics.ts'
 import { QUOTATIONS, SUPPLIERS, type Quotation, type Supplier } from '../data/procurement.ts'
-import type { ModuleId } from '../data/nav.ts'
+import type { ModuleId, ViewId } from '../data/nav.ts'
 import { newTenantId, type Member, type RoleId, type Tenant, type UserId } from './access.ts'
 import type { Tone } from './format.ts'
 
@@ -40,6 +41,7 @@ export const DEMO_PDFS: Array<Pick<KbDocument, 'name' | 'sizeKb' | 'category' | 
   { name: 'Crestline_Quotation_CQ-5520.pdf', sizeKb: 280, category: 'Supplier contract', visibility: 'Module', module: 'procurement' },
   { name: 'Procurement_Policy_2026.pdf', sizeKb: 720, category: 'Policy', visibility: 'Module', module: 'procurement' },
   { name: 'Critical_Spares_Policy_v3.pdf', sizeKb: 980, category: 'Policy', visibility: 'Module', module: 'inventory' },
+  { name: 'Shelf_Life_and_FEFO_Policy_2026.pdf', sizeKb: 540, category: 'Policy', visibility: 'Company' },
   { name: 'Supplier_Pricing_2026_CONFIDENTIAL.pdf', sizeKb: 450, category: 'Supplier contract', visibility: 'Restricted' },
 ]
 
@@ -64,6 +66,13 @@ export function advanceDocs(docs: KbDocument[]): KbDocument[] {
     }
     return { ...d, status: 'indexed', progress: 100 }
   })
+}
+
+/** Human-readable ACL metadata attached to every chunk of a document. */
+export function aclLabel(d: Pick<KbDocument, 'visibility' | 'module'>) {
+  if (d.visibility === 'Restricted') return 'roles=[owner,admin]'
+  if (d.visibility === 'Module') return `modules=[${d.module ?? '—'}] · roles=*`
+  return 'modules=* · roles=*'
 }
 
 export function ragState(docs: KbDocument[]) {
@@ -125,7 +134,15 @@ export const GOLD_DATASETS: GoldDataset[] = [
   { id: 'g5', name: 'gold.customer_360', sources: ['crm', 'erp'], modules: ['crm'], task: 'Case context, proactive notices', freshness: '9 min', quality: 97.9, tone: 'nv', version: 'v612', asOf: '14:23', stale: false },
   { id: 'g6', name: 'gold.warehouse_ops', sources: ['wms'], modules: ['warehousing'], task: 'Dock & wave planning', freshness: '2 min', quality: 98.7, tone: 'nv', version: 'v4410', asOf: '14:30', stale: false },
   { id: 'g7', name: 'gold.platform_telemetry', sources: ['scada', 's3'], modules: ['it'], task: 'Integration health, SLOs', freshness: '1 min', quality: 99.1, tone: 'nv', version: 'v2291', asOf: '14:31', stale: false },
+  { id: 'g8', name: 'gold.lot_expiry', sources: ['wms', 'erp'], modules: ['inventory'], task: 'Perishable Expiry Guard scans', freshness: '6 min', quality: 98.3, tone: 'warn', version: 'v318', asOf: '14:26', stale: false },
 ]
+
+const clock = (iso: string) => new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', hour12: false })
+
+/** Gold catalog copy whose gold.lot_expiry entry mirrors the Expiry Guard feed (version + as-of). */
+export function goldWithExpiry(gold: GoldDataset[], expiry: ExpiryState): GoldDataset[] {
+  return gold.map((g) => (g.name === expiry.feed.dataset ? { ...g, modules: [...g.modules], version: expiry.feed.version, asOf: clock(expiry.feed.asOf) } : { ...g, modules: [...g.modules] }))
+}
 
 /* ------------------------------------------------------------ audit */
 
@@ -136,21 +153,26 @@ export interface AuditEvent {
   actor: string
   action: string
   detail: string
+  /** Resource the event concerns — activity feeds only show events for resources the viewer may open. Untagged = admin-only. */
+  resource?: ViewId
 }
 
 let auditSeq = 0
-export function auditEvent(actor: string, action: string, detail: string, tone: Tone = 'info'): AuditEvent {
+export function auditEvent(actor: string, action: string, detail: string, tone: Tone = 'info', resource?: ViewId): AuditEvent {
   auditSeq += 1
   const time = new Date().toLocaleTimeString('en-GB', { hour12: false })
-  return { id: `au_${auditSeq}_${Date.now().toString(36)}`, time, tone, actor, action, detail }
+  return { id: `au_${auditSeq}_${Date.now().toString(36)}`, time, tone, actor, action, detail, resource }
 }
 
 const SEED_AUDIT: AuditEvent[] = [
-  { id: 'au_s1', time: '14:31:02', tone: 'nv', actor: 'system', action: 'Gate policy applied', detail: 'Physics & standards gate v2.4 active for all command writes' },
-  { id: 'au_s2', time: '14:12:47', tone: 'warn', actor: 'jordan.lee', action: 'Access denied', detail: 'Truck Driver attempted to open Procurement — blocked, request logged' },
-  { id: 'au_s3', time: '13:58:10', tone: 'info', actor: 'priya.shah', action: 'Credential rotated', detail: 'S3 connector key rotated (secret stored server-side)' },
-  { id: 'au_s4', time: '13:40:33', tone: 'info', actor: 'alex.moreno', action: 'Role changed', detail: 'Sam Ortiz: + Manufacturing Engineer' },
-  { id: 'au_s5', time: '09:02:11', tone: 'nv', actor: 'alex.moreno', action: 'Sign-in', detail: 'SSO · MFA verified (simulated)' },
+  { id: 'au_s1', time: '14:31:02', tone: 'nv', actor: 'system', action: 'Gate policy applied', detail: 'Physics & standards gate v2.4 active for all command writes (triage preview)', resource: 'triage' },
+  { id: 'au_s6', time: '14:10:05', tone: 'crit', actor: 'system', action: 'TMS refresh failed', detail: "shipments export missing required column eta_ts — serving shipments_eta@v142 (11:04)", resource: 'data' },
+  { id: 'au_s2', time: '12:14:47', tone: 'warn', actor: 'jordan.lee', action: 'Access denied', detail: 'Driver asked for Hydraflow purchase orders — blocked before retrieval, 0 chunks', resource: 'data' },
+  { id: 'au_s3', time: '11:58:10', tone: 'info', actor: 'priya.shah', action: 'Credential rotated', detail: 'S3 connector key rotated (secret stored server-side)', resource: 'data' },
+  { id: 'au_s7', time: '10:05:40', tone: 'nv', actor: 'jordan.lee', action: 'Shipment status updated', detail: 'SHP-88329 → Delivered (Orion Chemicals)', resource: 'transportation' },
+  { id: 'au_s8', time: '09:44:12', tone: 'info', actor: 'tess.vos', action: 'Quotation received', detail: 'CQ-5520 from Crestline Industrial for RFQ-2291', resource: 'procurement' },
+  { id: 'au_s4', time: '09:40:33', tone: 'info', actor: 'alex.moreno', action: 'Role changed', detail: 'Tess Vos: + Transportation Manager', resource: 'team' },
+  { id: 'au_s5', time: '09:02:11', tone: 'nv', actor: 'alex.moreno', action: 'Sign-in', detail: 'SSO · MFA verified (simulated)', resource: 'team' },
 ]
 
 const SEED_INCIDENTS: SecurityIncident[] = [
@@ -217,6 +239,8 @@ export interface Workspace {
   audit: AuditEvent[]
   shipments: Shipment[]
   stock: StockItem[]
+  /** Perishable Expiry Guard state (simulated agent: lots, rules, runs, proposed actions). */
+  expiry: ExpiryState
   /** Owner-only "preview as" persona; null = own identity. UX only — never sent to the backend as authority. */
   previewRoles: RoleId[] | null
   previewUserId: UserId | null
@@ -237,6 +261,7 @@ export function ownerMember(name: string, email: string): Member {
 
 /** Fully configured workspace used by "Use demo company" and as the demo baseline. */
 export function demoWorkspace(name: string, email: string): Workspace {
+  const expiry = seedExpiry()
   return {
     tenant: {
       tenantId: 'tnt_plant_a_demo',
@@ -259,7 +284,7 @@ export function demoWorkspace(name: string, email: string): Workspace {
     currentUserId: 'usr_owner',
     documents: DEMO_PDFS.map((d) => makeDoc(d, 'indexed')),
     connectors: CONNECTORS.map((c) => ({ ...c })),
-    gold: GOLD_DATASETS.map((g) => ({ ...g, modules: [...g.modules] })),
+    gold: goldWithExpiry(GOLD_DATASETS, expiry),
     audit: [...SEED_AUDIT],
     incidents: [...SEED_INCIDENTS],
     invites: [],
@@ -267,6 +292,7 @@ export function demoWorkspace(name: string, email: string): Workspace {
     quotations: QUOTATIONS.map((x) => ({ ...x })),
     shipments: SHIPMENTS.map((x) => ({ ...x })),
     stock: STOCK.map((x) => ({ ...x })),
+    expiry,
     previewRoles: null,
     previewUserId: null,
     origin: 'demo',
@@ -327,7 +353,7 @@ export function workspaceFromInvite(inv: DemoInvite, name: string, email: string
     shipments: base.shipments.map((sh) => (sh.driverId === userId ? { ...sh, driverName: name } : sh)),
     currentUserId: userId,
     origin: 'join',
-    audit: [auditEvent(email.split('@')[0], 'Invite accepted', `Joined with code ${inv.code} as ${inv.roles.join(', ')}`, 'nv'), ...base.audit],
+    audit: [auditEvent(email.split('@')[0], 'Invite accepted', `Joined with code ${inv.code} as ${inv.roles.join(', ')}`, 'nv', 'team'), ...base.audit],
   }
 }
 
@@ -352,16 +378,17 @@ export function emptyDraft(): SetupDraft {
 }
 
 export function workspaceFromDraft(d: SetupDraft, owner: Member): Workspace {
+  const expiry = seedExpiry()
   return {
     tenant: { ...d.tenant, tenantId: newTenantId() },
     members: [owner, ...d.members],
     currentUserId: owner.userId,
     documents: d.documents,
     connectors: d.connectors,
-    gold: d.gold,
+    gold: goldWithExpiry(d.gold, expiry),
     audit: [
-      auditEvent(owner.email.split('@')[0], 'Workspace launched', `${d.tenant.enabledModules.length} modules · ${d.members.length} invites queued (demo)`, 'nv'),
-      auditEvent('system', 'Tenant isolation', 'Backend must scope every API/RAG call to this tenant (see INTEGRATION.md)', 'info'),
+      auditEvent(owner.email.split('@')[0], 'Workspace launched', `${d.tenant.enabledModules.length} modules · ${d.members.length} invites queued (demo)`, 'nv', 'settings'),
+      auditEvent('system', 'Tenant isolation', 'Backend must scope every API/RAG call to this tenant (see INTEGRATION.md)', 'info', 'settings'),
     ],
     incidents: [],
     invites: d.invites,
@@ -369,6 +396,7 @@ export function workspaceFromDraft(d: SetupDraft, owner: Member): Workspace {
     quotations: QUOTATIONS.map((x) => ({ ...x })),
     shipments: SHIPMENTS.map((x) => ({ ...x })),
     stock: STOCK.map((x) => ({ ...x })),
+    expiry,
     previewRoles: null,
     previewUserId: null,
     origin: 'setup',
@@ -414,7 +442,15 @@ export function acceptInvite(ws: Workspace, inv: InviteCode, name: string, email
       members,
       shipments: ws.shipments.map((sh) => (sh.driverId === userId ? { ...sh, driverName: name } : sh)),
       invites: ws.invites.map((i) => (i.code === inv.code ? { ...i, usedBy: email } : i)),
-      audit: [auditEvent(email.split('@')[0], 'Invite accepted', `${inv.code} → ${inv.roles.join(' + ')}`, 'nv'), ...ws.audit],
+      audit: [auditEvent(email.split('@')[0], 'Invite accepted', `${inv.code} → ${inv.roles.join(' + ')}`, 'nv', 'team'), ...ws.audit],
     },
   }
+}
+
+/** Fills fields added after a workspace was stored (older mock DB entries). */
+export function normalizeWorkspace(ws: Workspace): Workspace {
+  if (ws.expiry && ws.gold.some((g) => g.name === 'gold.lot_expiry')) return ws
+  const expiry = ws.expiry ?? seedExpiry()
+  const gold = ws.gold.some((g) => g.name === 'gold.lot_expiry') ? ws.gold : [...ws.gold, ...GOLD_DATASETS.filter((g) => g.name === 'gold.lot_expiry')]
+  return { ...ws, expiry, gold: goldWithExpiry(gold, expiry) }
 }

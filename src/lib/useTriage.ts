@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from 'react'
 import { delay } from './format.ts'
-import { runInference, USE_MOCK_DEFAULT, type InferenceOutcome } from './inference.ts'
+import { runInference, type InferenceOutcome } from './inference.ts'
 import { presetMeta } from './presets.ts'
 import type { PresetId } from './types.ts'
 import { prefersReducedMotion } from './useNow.ts'
@@ -15,7 +15,7 @@ export const MODELS = [
 
 export const PIPELINE_STAGES = [
   { key: 'telemetry', label: 'Sensor telemetry', detail: '4 channels · 25.6 kHz' },
-  { key: 'engine', label: 'Neural anomaly engine', detail: 'NVIDIA Brev · A100' },
+  { key: 'engine', label: 'Neural anomaly engine', detail: 'Simulated · Brev GPU target' },
   { key: 'gate', label: 'Physics & standards gate', detail: 'ISO / API limits' },
   { key: 'action', label: 'Action generator', detail: 'PLC/SCADA + CMMS' },
 ] as const
@@ -30,14 +30,14 @@ export interface AttachedFile {
   size: number
 }
 
-export function useTriage() {
+/** Triage controller. `useMock` is the app-wide demo switch (Settings → Integrations), shared with the assistant. */
+export function useTriage(useMock: boolean, setUseMock: (v: boolean) => void) {
   const [preset, setPresetState] = useState<PresetId>('pump_cavitation')
   const [source, setSource] = useState(() => defaultSource('pump_cavitation'))
   const [file, setFile] = useState<AttachedFile | null>(null)
   const [model, setModel] = useState<string>(MODELS[0].id)
   const [threshold, setThreshold] = useState(0.7)
   const [margin, setMargin] = useState(15)
-  const [useMock, setUseMock] = useState(USE_MOCK_DEFAULT)
   const [phase, setPhase] = useState<TriagePhase>('idle')
   const [stage, setStage] = useState(-1)
   const [outcome, setOutcome] = useState<InferenceOutcome | null>(null)

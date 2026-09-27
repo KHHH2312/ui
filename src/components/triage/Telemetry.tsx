@@ -1,5 +1,5 @@
 import { useId, useMemo, useState, type PointerEvent } from 'react'
-import { cx, fmtPct, severityTone, TONE_HEX, TONE_TEXT, type Tone } from '../../lib/format.ts'
+import { cx, fmtPct, severityTone, TONE_COLOR, TONE_TEXT, type Tone } from '../../lib/format.ts'
 import type { Detection, InferenceResult, Signal } from '../../lib/types.ts'
 import { Badge, Eyebrow, Meter, Panel } from '../ui/primitives.tsx'
 
@@ -42,7 +42,7 @@ function Waveform({ signal: s, cursor, onCursor, detections, selectedId }: WaveP
   const idx = cursor ?? n - 1
   const value = s.values[idx]
   const tone = signalTone(s, value)
-  const color = TONE_HEX[tone]
+  const color = TONE_COLOR[tone]
   const mine = detections.filter((d) => d.signal === s.key)
 
   const move = (e: PointerEvent<HTMLDivElement>) => {
@@ -52,18 +52,18 @@ function Waveform({ signal: s, cursor, onCursor, detections, selectedId }: WaveP
   }
 
   return (
-    <figure className="min-w-0 rounded-[5px] border border-line bg-deck/70 p-3">
+    <figure className="min-w-0 rounded-lg border border-line bg-deck/70 p-3">
       <figcaption className="mb-2 flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="truncate text-[13px] font-medium text-white">{s.label}</p>
-          <p className="num text-[11px] text-slate-500">
+          <p className="truncate text-[13px] font-medium text-fg">{s.label}</p>
+          <p className="num text-[11px] text-faint">
             {s.limit === 'upper' ? '≤' : '≥'} {s.warn} warn · {s.alarm} alarm {s.unit}
           </p>
         </div>
         <div className="text-right">
-          <span className={cx('num text-[20px] font-semibold leading-none', TONE_TEXT[tone])}>{value.toFixed(s.key === 'pressure' ? 2 : 1)}</span>
-          <span className="num ml-1 text-[11px] text-slate-400">{s.unit}</span>
-          <p className="num mt-0.5 text-[10.5px] text-slate-500">{minutesAgo(idx, n)}</p>
+          <span className={cx('num text-lg font-semibold leading-none', TONE_TEXT[tone])}>{value.toFixed(s.key === 'pressure' ? 2 : 1)}</span>
+          <span className="num ml-1 text-[11px] text-muted">{s.unit}</span>
+          <p className="num mt-0.5 text-[11px] text-faint">{minutesAgo(idx, n)}</p>
         </div>
       </figcaption>
       <div className="relative h-[92px] cursor-crosshair touch-none" onPointerMove={move} onPointerDown={move} onPointerLeave={() => onCursor(null)} aria-hidden>
@@ -75,7 +75,7 @@ function Waveform({ signal: s, cursor, onCursor, detections, selectedId }: WaveP
             </linearGradient>
           </defs>
           {[0.25, 0.5, 0.75].map((f) => (
-            <line key={f} x1={0} x2={VB_W} y1={VB_H * f} y2={VB_H * f} stroke="#1e293b" vectorEffect="non-scaling-stroke" />
+            <line key={f} x1={0} x2={VB_W} y1={VB_H * f} y2={VB_H * f} stroke="var(--color-line)" vectorEffect="non-scaling-stroke" />
           ))}
           {mine.map((d) => {
             const sel = d.id === selectedId
@@ -86,24 +86,24 @@ function Waveform({ signal: s, cursor, onCursor, detections, selectedId }: WaveP
                 y={0}
                 width={x(d.window[1]) - x(d.window[0])}
                 height={VB_H}
-                fill={TONE_HEX[severityTone(d.severity)]}
+                fill={TONE_COLOR[severityTone(d.severity)]}
                 opacity={sel ? 0.16 : 0.06}
-                stroke={sel ? TONE_HEX[severityTone(d.severity)] : 'none'}
+                stroke={sel ? TONE_COLOR[severityTone(d.severity)] : 'none'}
                 strokeDasharray="4 3"
                 vectorEffect="non-scaling-stroke"
                 className="transition-opacity duration-300"
               />
             )
           })}
-          <line x1={0} x2={VB_W} y1={y(s.warn)} y2={y(s.warn)} stroke="#f5a524" strokeOpacity="0.7" strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
-          <line x1={0} x2={VB_W} y1={y(s.alarm)} y2={y(s.alarm)} stroke="#ff4d4f" strokeOpacity="0.75" strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
+          <line x1={0} x2={VB_W} y1={y(s.warn)} y2={y(s.warn)} stroke="var(--color-warn)" strokeOpacity="0.7" strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
+          <line x1={0} x2={VB_W} y1={y(s.alarm)} y2={y(s.alarm)} stroke="var(--color-crit)" strokeOpacity="0.75" strokeDasharray="5 4" vectorEffect="non-scaling-stroke" />
           <path d={`${line} L${VB_W},${VB_H} L0,${VB_H} Z`} fill={`url(#${gid})`} />
           <path d={line} fill="none" stroke={color} strokeWidth="1.6" vectorEffect="non-scaling-stroke" strokeLinejoin="round" />
         </svg>
-        <div className="pointer-events-none absolute inset-y-0 w-px bg-white/50" style={{ left: `${(idx / (n - 1)) * 100}%`, opacity: cursor === null ? 0 : 1 }} />
+        <div className="pointer-events-none absolute inset-y-0 w-px bg-fg/50" style={{ left: `${(idx / (n - 1)) * 100}%`, opacity: cursor === null ? 0 : 1 }} />
         <div
-          className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-void"
-          style={{ left: `${(idx / (n - 1)) * 100}%`, top: `${(y(value) / VB_H) * 100}%`, background: color, boxShadow: `0 0 8px ${color}` }}
+          className="pointer-events-none absolute size-2 -translate-x-1/2 -translate-y-1/2 rounded-full border border-canvas"
+          style={{ left: `${(idx / (n - 1)) * 100}%`, top: `${(y(value) / VB_H) * 100}%`, background: color }}
         />
       </div>
     </figure>
@@ -120,11 +120,11 @@ function Spectrum({ result }: { result: InferenceResult }) {
   }, { order: 1, amplitude: -1 })
   const tone: Tone = anomalous ? 'crit' : 'nv'
   return (
-    <figure className="min-w-0 rounded-[5px] border border-line bg-deck/70 p-3">
+    <figure className="min-w-0 rounded-lg border border-line bg-deck/70 p-3">
       <figcaption className="mb-2 flex items-start justify-between gap-2">
         <div>
-          <p className="text-[13px] font-medium text-white">Harmonic signature</p>
-          <p className="num text-[11px] text-slate-500">order spectrum · 1× = {result.asset.shaft_hz} Hz</p>
+          <p className="text-[13px] font-medium text-fg">Harmonic signature</p>
+          <p className="num text-[11px] text-faint">order spectrum · 1× = {result.asset.shaft_hz} Hz</p>
         </div>
         <Badge tone={tone}>
           {peak.order}× · {(peak.order * result.asset.shaft_hz).toFixed(1)} Hz
@@ -137,13 +137,13 @@ function Spectrum({ result }: { result: InferenceResult }) {
           return (
             <div
               key={b.order}
-              className={cx('flex-1 rounded-t-[1px] transition-[height] duration-700', isPeak ? (anomalous ? 'bg-crit' : 'bg-nv') : is1x ? 'bg-slate-300' : 'bg-slate-600')}
-              style={{ height: `${Math.max(2, (b.amplitude / max) * 100)}%`, boxShadow: isPeak ? `0 0 10px ${TONE_HEX[tone]}` : undefined }}
+              className={cx('flex-1 rounded-t-sm transition-[height] duration-700', isPeak ? (anomalous ? 'bg-crit' : 'bg-accent') : is1x ? 'bg-fg-2' : 'bg-line-2')}
+              style={{ height: `${Math.max(2, (b.amplitude / max) * 100)}%` }}
             />
           )
         })}
       </div>
-      <div className="num mt-1.5 flex justify-between text-[10.5px] text-slate-500">
+      <div className="num mt-1.5 flex justify-between text-[11px] text-faint">
         <span>0.5×</span>
         <span>1×</span>
         <span>5×</span>
@@ -160,23 +160,23 @@ function AnomalyTimeline({ result, threshold }: { result: InferenceResult; thres
   const line = vals.map((v, i) => `${i ? 'L' : 'M'}${((i / (n - 1)) * VB_W).toFixed(2)},${(VB_H - v * VB_H).toFixed(2)}`).join(' ')
   const over = onset >= 0
   return (
-    <figure className="min-w-0 rounded-[5px] border border-line bg-deck/70 p-3">
+    <figure className="min-w-0 rounded-lg border border-line bg-deck/70 p-3">
       <figcaption className="mb-2 flex items-start justify-between gap-2">
         <div>
-          <p className="text-[13px] font-medium text-white">Neural anomaly score</p>
-          <p className="num text-[11px] text-slate-500">operator threshold {threshold.toFixed(2)}</p>
+          <p className="text-[13px] font-medium text-fg">Neural anomaly score</p>
+          <p className="num text-[11px] text-faint">operator threshold {threshold.toFixed(2)}</p>
         </div>
         <Badge tone={over ? 'crit' : 'nv'}>{over ? `Onset ${minutesAgo(onset, n)}` : 'Below threshold'}</Badge>
       </figcaption>
       <div className="relative h-[92px]" role="img" aria-label={over ? `Anomaly score crossed threshold ${n - 1 - onset} minutes ago` : 'Anomaly score below threshold'}>
         <svg viewBox={`0 0 ${VB_W} ${VB_H}`} preserveAspectRatio="none" className="absolute inset-0 size-full">
-          {over && <rect x={(onset / (n - 1)) * VB_W} y={0} width={VB_W - (onset / (n - 1)) * VB_W} height={VB_H} fill="#ff4d4f" opacity="0.07" />}
-          <line x1={0} x2={VB_W} y1={VB_H - threshold * VB_H} y2={VB_H - threshold * VB_H} stroke="#f5a524" strokeDasharray="5 4" vectorEffect="non-scaling-stroke" className="transition-all duration-300" />
-          <path d={`${line} L${VB_W},${VB_H} L0,${VB_H} Z`} fill={over ? '#ff4d4f' : '#76b900'} opacity="0.12" />
-          <path d={line} fill="none" stroke={over ? '#ff6b6d' : '#76b900'} strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
+          {over && <rect x={(onset / (n - 1)) * VB_W} y={0} width={VB_W - (onset / (n - 1)) * VB_W} height={VB_H} fill="var(--color-crit)" opacity="0.07" />}
+          <line x1={0} x2={VB_W} y1={VB_H - threshold * VB_H} y2={VB_H - threshold * VB_H} stroke="var(--color-warn)" strokeDasharray="5 4" vectorEffect="non-scaling-stroke" className="transition-all duration-300" />
+          <path d={`${line} L${VB_W},${VB_H} L0,${VB_H} Z`} fill={over ? 'var(--color-crit)' : 'var(--color-accent)'} opacity="0.12" />
+          <path d={line} fill="none" stroke={over ? 'var(--color-crit)' : 'var(--color-accent)'} strokeWidth="1.6" vectorEffect="non-scaling-stroke" />
         </svg>
       </div>
-      <div className="num mt-1.5 flex justify-between text-[10.5px] text-slate-500">
+      <div className="num mt-1.5 flex justify-between text-[11px] text-faint">
         <span>T−63m</span>
         <span>T−32m</span>
         <span>NOW</span>
@@ -201,7 +201,7 @@ export function TelemetryPanel({ result, threshold, selectedId, onSelect }: { re
         ))}
       </div>
       <div className="mt-3 flex items-center gap-3">
-        <label htmlFor="scrub" className="eyebrow shrink-0 text-[10px]">
+        <label htmlFor="scrub" className="eyebrow shrink-0 text-[11px]">
           Scrub
         </label>
         <input
@@ -217,7 +217,7 @@ export function TelemetryPanel({ result, threshold, selectedId, onSelect }: { re
           aria-valuetext={minutesAgo(cursor ?? n - 1, n)}
           style={{ ['--fill' as string]: `${((cursor ?? n - 1) / (n - 1)) * 100}%` }}
         />
-        <span className="num w-12 shrink-0 text-right text-[11px] text-slate-400">{minutesAgo(cursor ?? n - 1, n)}</span>
+        <span className="num w-12 shrink-0 text-right text-[11px] text-muted">{minutesAgo(cursor ?? n - 1, n)}</span>
       </div>
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <Spectrum result={result} />
@@ -230,7 +230,7 @@ export function TelemetryPanel({ result, threshold, selectedId, onSelect }: { re
 
 function Findings({ result, selectedId, onSelect }: { result: InferenceResult; selectedId: string | null; onSelect: (id: string | null) => void }) {
   if (result.detections.length === 0) {
-    return <p className="mt-4 rounded-[4px] border border-nv/30 bg-nv/[0.05] px-3 py-2.5 text-[13px] text-slate-300">No anomalous findings — all channels inside the learned baseline envelope.</p>
+    return <p className="mt-4 rounded-md border border-accent/30 bg-accent/[0.05] px-3 py-2.5 text-[13px] text-fg-2">No anomalous findings — all channels inside the learned baseline envelope.</p>
   }
   return (
     <div className="mt-4 overflow-x-auto">
@@ -239,7 +239,7 @@ function Findings({ result, selectedId, onSelect }: { result: InferenceResult; s
         <thead>
           <tr className="border-b border-line">
             {['Finding', 'Channel', 'Confidence', 'Severity', 'Window'].map((h) => (
-              <th key={h} scope="col" className="eyebrow px-2 py-2 text-[10px] font-medium">
+              <th key={h} scope="col" className="eyebrow px-2 py-2 text-[11px] font-medium">
                 {h}
               </th>
             ))}
@@ -251,25 +251,25 @@ function Findings({ result, selectedId, onSelect }: { result: InferenceResult; s
             const tone = severityTone(d.severity)
             const sig = result.signals.find((s) => s.key === d.signal)
             return (
-              <tr key={d.id} className={cx('border-b border-line/60 transition-colors last:border-0', sel ? 'bg-white/[0.05]' : 'hover:bg-white/[0.025]')}>
+              <tr key={d.id} className={cx('border-b border-line/60 transition-colors last:border-0', sel ? 'bg-raised' : 'hover:bg-raised')}>
                 {/* oxlint-disable-next-line jsx-a11y/control-has-associated-label -- cell text is in nested elements */}
                 <td className="px-2 py-2">
                   <button type="button" onClick={() => onSelect(sel ? null : d.id)} aria-pressed={sel} className="text-left">
-                    <span className={cx('block font-medium', sel ? 'text-white' : 'text-slate-200')}>{d.label}</span>
-                    <span className="block max-w-[340px] truncate text-[11.5px] text-slate-400">{d.evidence}</span>
+                    <span className={cx('block font-medium', sel ? 'text-fg' : 'text-fg-2')}>{d.label}</span>
+                    <span className="block max-w-[340px] truncate text-xs text-muted">{d.evidence}</span>
                   </button>
                 </td>
-                <td className="px-2 py-2 text-slate-300">{sig?.label ?? d.signal}</td>
+                <td className="px-2 py-2 text-fg-2">{sig?.label ?? d.signal}</td>
                 <td className="px-2 py-2">
                   <div className="flex items-center gap-2">
                     <Meter value={d.confidence} tone={tone} className="w-16" label={`${d.label} confidence`} />
-                    <span className="num text-slate-200">{fmtPct(d.confidence)}</span>
+                    <span className="num text-fg-2">{fmtPct(d.confidence)}</span>
                   </div>
                 </td>
                 <td className="px-2 py-2">
                   <Badge tone={tone}>{d.severity}</Badge>
                 </td>
-                <td className="num px-2 py-2 text-slate-400">
+                <td className="num px-2 py-2 text-muted">
                   {minutesAgo(d.window[0], result.signals[0].values.length)} → {minutesAgo(d.window[1], result.signals[0].values.length)}
                 </td>
               </tr>

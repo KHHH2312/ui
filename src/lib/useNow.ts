@@ -26,3 +26,16 @@ export function useMediaQuery(query: string) {
   }, [query])
   return match
 }
+
+/** Observed content width of an element (for container-driven layout switches such as map ↔ list). */
+export function useElementWidth<T extends HTMLElement>() {
+  const [el, setEl] = useState<T | null>(null)
+  const [width, setWidth] = useState(0)
+  useEffect(() => {
+    if (!el) return
+    const ro = new ResizeObserver(([entry]) => setWidth(Math.round(entry.contentRect.width)))
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [el])
+  return [setEl, width] as const
+}

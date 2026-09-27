@@ -344,19 +344,19 @@ export const MODULES: Record<ModuleId, ModuleConfig> = {
     id: 'it',
     eyebrow: 'Platform · OT / IT',
     title: 'Information Technology',
-    description: 'Health of the OT/IT integration layer — SCADA gateway, historian, CMMS and the NVIDIA Brev inference pool.',
+    description: 'Health of the OT/IT integration layer — SCADA gateway, historian, CMMS and the planned GPU inference service (architecture target).',
     kpis: [
       { label: 'Platform uptime', value: '99.98', unit: '%', delta: '30-day SLO 99.9%', deltaTone: 'nv' },
       { label: 'OT/IT endpoints', value: '1,326', delta: '+18 onboarded', deltaTone: 'info' },
       { label: 'Security incidents', value: '0', delta: 'critical · 30 d', deltaTone: 'nv', tone: 'nv' },
-      { label: 'GPU inference nodes', value: '4', unit: '× A100', delta: 'Brev pool · 63% util', deltaTone: 'nv' },
+      { label: 'GPU inference nodes', value: '—', delta: 'Architecture target · not provisioned', deltaTone: 'info' },
     ],
     chart: {
       kind: 'progress',
       title: 'Service availability',
       caption: 'Rolling 30 days',
       data: [
-        { label: 'NEXUS inference API', value: 0.9999, detail: '99.99%' },
+        { label: 'NEXUS web API (sample)', value: 0.9999, detail: '99.99%' },
         { label: 'OPC UA historian', value: 0.9996, detail: '99.96%' },
         { label: 'SCADA gateway (IEC 62443)', value: 0.9993, detail: '99.93%' },
         { label: 'CMMS integration', value: 0.9971, detail: '99.71%', tone: 'warn' },
@@ -371,12 +371,12 @@ export const MODULES: Record<ModuleId, ModuleConfig> = {
         { key: 'status', label: 'Status' },
       ],
       rows: [
-        { svc: 'NEXUS inference (Brev A100)', endpoint: 'POST /infer', latency: '41 ms', status: { text: 'Operational', tone: 'nv' } },
+        { svc: 'Inference service (NVIDIA NIM target)', endpoint: 'POST /triage/infer', latency: '—', status: { text: 'Not deployed', tone: 'neutral' } },
         { svc: 'OPC UA historian', endpoint: 'opc.tcp://hist-01:4840', latency: '12 ms', status: { text: 'Operational', tone: 'nv' } },
         { svc: 'SCADA write gateway', endpoint: 'plc-gw.zone2', latency: '184 ms', status: { text: 'Simulation mode', tone: 'info' } },
         { svc: 'CMMS work orders', endpoint: 'cmms/api/v2', latency: '96 ms', status: { text: 'Degraded retries', tone: 'warn' } },
       ],
     },
-    action: { label: 'Run health check', toast: 'Health check complete · 4/4 services reachable (demo)' },
+    action: { label: 'Run health check', toast: 'Sample health check (demo) · 3 of 4 services reachable, inference not deployed' },
   },
 }

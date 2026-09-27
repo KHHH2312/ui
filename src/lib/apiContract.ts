@@ -73,3 +73,11 @@ export interface QuotationDto { id: string; rfq: string; supplier_id: string; it
 /* ---------- sources, pipelines, audit */
 export interface SourceDto { id: string; kind: string; name: string; health: 'healthy' | 'stale' | 'failed' | 'schema_mismatch'; last_run: { at: string; status: 'ok' | 'failed'; error?: string }; last_success: { at: string; version: string } }
 export interface SecurityEventDto { id: string; at: string; company_id: string; user_id: string; roles: ApiRole[]; resource: string; decision: 'DENY'; stage: 'pre-retrieval' | 'route' | 'api'; reason: string; chunks_retrieved: 0 }
+
+/* ---------- Perishable Expiry Guard (simulated in the UI; backend team implements) */
+export interface LotDto { id: string; sku: string; product: string; batch: string; facility: string; qty: number; unit: string; unit_value: number; expiry: string; days_remaining: number; severity: 'healthy' | 'warning' | 'critical'; value_at_risk: number; source_version: string; as_of: string }
+export interface ExpiryActionDto { id: string; kind: 'fefo' | 'dispatch' | 'markdown' | 'quarantine' | 'donation' | 'supplier_return'; lot_id: string; title: string; rationale: string; value_protected: number; confidence: number; external: boolean; requires_approval: true; route: 'inventory' | 'procurement'; status: 'proposed' | 'approved' | 'dismissed'; decided_by?: string; decided_at?: string; policy: Array<{ document: string; page: number }> }
+/** POST /inventory/expiry/actions/{id}/decision — server checks inventory (or procurement, for supplier returns) `manage`. */
+export interface ExpiryDecisionRequest { decision: 'approved' | 'dismissed' | 'proposed' }
+export interface ExpiryRulesDto { version: number; critical_days: number; warning_days: number; scan_minutes: number; markdown_max_pct: number; min_confidence: number; updated_at: string; updated_by: string }
+export interface ExpiryRunDto { id: string; at: string; status: 'ok' | 'partial' | 'failed'; lots_scanned: number; rows_rejected: number; at_risk: number; rule_version: number; source_version: string }

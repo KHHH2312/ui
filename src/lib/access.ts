@@ -61,8 +61,9 @@ const ALL_RESOURCES: ViewId[] = [
 export const ROLES: RoleDef[] = [
   { id: 'owner', label: 'Owner', description: 'Full control, workspace setup and access', grants: ALL_RESOURCES.map((r) => g(r, ALL_ACTIONS)) },
   { id: 'admin', label: 'Admin', description: 'Manage members, modules and settings', grants: ALL_RESOURCES.map((r) => g(r, ALL_ACTIONS)) },
-  { id: 'data_architect', label: 'Data Architect', description: 'Configure connections & pipelines — cannot read business records', grants: [g('data', ['view', 'configure']), g('knowledge', ['view', 'configure'])] },
-  { id: 'procurement_manager', label: 'Procurement', description: 'Suppliers, quotations and purchase orders', grants: [g('procurement', ['view', 'read_records', 'manage', 'query_ai']), g('inventory', ['view', 'read_records', 'query_ai']), g('knowledge', ['view'])] },
+  { id: 'data_architect', label: 'Data Architect', description: 'Configure connections & pipelines — cannot read business records', grants: [g('data', ['view', 'configure', 'query_ai']), g('knowledge', ['view', 'configure']), g('inventory', ['view', 'configure'])] },
+  // Procurement sees supplier-return proposals through Procurement itself — not the Inventory module's lots or values.
+  { id: 'procurement_manager', label: 'Procurement', description: 'Suppliers, quotations, purchase orders and supplier returns', grants: [g('procurement', ['view', 'read_records', 'manage', 'query_ai']), g('knowledge', ['view'])] },
   { id: 'inventory_planner', label: 'Inventory Planner', description: 'Stock positions and replenishment', grants: [g('dashboard', ['view']), g('inventory', ['view', 'read_records', 'manage', 'query_ai']), g('warehousing', ['view', 'read_records']), g('knowledge', ['view'])] },
   { id: 'truck_driver', label: 'Driver', description: 'Assigned deliveries only; can update their status', grants: [g('transportation', ['view', 'read_records', 'update_status', 'query_ai'], 'assigned')] },
   { id: 'transportation_manager', label: 'Transportation Manager', description: 'Manage all shipments, drivers and carriers', grants: [g('dashboard', ['view']), g('transportation', ['view', 'read_records', 'update_status', 'manage', 'query_ai']), g('knowledge', ['view'])] },
@@ -70,7 +71,7 @@ export const ROLES: RoleDef[] = [
   { id: 'manufacturing_engineer', label: 'Manufacturing Engineer', description: 'Lines, machinery health, Autonomous Triage', grants: [g('dashboard', ['view']), g('manufacturing', ['view', 'read_records', 'manage', 'query_ai']), g('triage', ['view', 'manage']), g('knowledge', ['view'])] },
   { id: 'distribution_lead', label: 'Distribution Lead', description: 'DC network, fulfilment, outbound lanes', grants: [g('dashboard', ['view']), g('distribution', ['view', 'read_records', 'manage']), g('transportation', ['view', 'read_records']), g('warehousing', ['view', 'read_records'])] },
   { id: 'customer_service', label: 'Customer Service Agent', description: 'Cases, SLAs and customer accounts', grants: [g('crm', ['view', 'read_records', 'update_status', 'query_ai']), g('knowledge', ['view'])] },
-  { id: 'it_security', label: 'IT / Security', description: 'Integrations, platform health, connection config', grants: [g('dashboard', ['view']), g('it', ['view', 'read_records', 'manage']), g('data', ['view', 'configure'])] },
+  { id: 'it_security', label: 'IT / Security', description: 'Integrations, platform health, connection config', grants: [g('dashboard', ['view']), g('it', ['view', 'read_records', 'manage']), g('data', ['view', 'configure', 'query_ai'])] },
 ]
 
 export const roleDef = (id: RoleId): RoleDef => ROLES.find((r) => r.id === id) ?? ROLES[0]
@@ -154,8 +155,16 @@ export function landingPage(perms: EffectivePermissions): ViewId {
   return LANDING_ORDER.find((p) => perms.pages.has(p)) ?? 'dashboard'
 }
 
-/** Business modules wired to the FastAPI prototype backend. The other six are "Coming soon". */
-export const IMPLEMENTED_MODULES: ModuleId[] = ['transportation', 'procurement']
+/** Business modules wired to the FastAPI prototype backend. */
+export const INTEGRATED_MODULES: ModuleId[] = ['transportation', 'procurement']
+/** Demo-capable modules that run on the local simulation until a backend exists — always labelled "simulated". */
+export const SIMULATED_MODULES: ModuleId[] = ['inventory']
+/** Modules with a working workspace (integrated or simulated). The other five are "Coming soon". */
+export const IMPLEMENTED_MODULES: ModuleId[] = [...INTEGRATED_MODULES, ...SIMULATED_MODULES]
+
+export type ModuleStage = 'integrated' | 'simulated' | 'soon'
+export const moduleStage = (m: ModuleId): ModuleStage => (INTEGRATED_MODULES.includes(m) ? 'integrated' : SIMULATED_MODULES.includes(m) ? 'simulated' : 'soon')
+export const STAGE_LABEL: Record<ModuleStage, string> = { integrated: 'Integrated · FastAPI prototype', simulated: 'Demo module · simulated', soon: 'Coming soon' }
 
 /** Roles supported by the integrated prototype backend (others are UI previews). */
 export const PROTOTYPE_ROLES: RoleId[] = ['owner', 'truck_driver', 'procurement_manager']

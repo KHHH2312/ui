@@ -1,8 +1,9 @@
 import { ArrowLeft, ArrowRight, Building, CircleCheck, KeyRound, LogOut, Rocket, Sparkles, Users } from 'lucide-react'
 import { useState, type FormEvent, type ReactNode } from 'react'
+import { StoryCards } from '../components/story/StoryCards.tsx'
 import { RoleChips } from '../components/workspace/MembersPanel.tsx'
 import { Logo } from '../components/ui/Logo.tsx'
-import { Badge, Eyebrow } from '../components/ui/primitives.tsx'
+import { Badge, Button, Eyebrow } from '../components/ui/primitives.tsx'
 import { navItem } from '../data/nav.ts'
 import { roleDef } from '../lib/access.ts'
 import { joinWithCode, lookupInvite, membershipsFor, openDemoCompany, openMembership, previewPages } from '../lib/mockDb.ts'
@@ -25,16 +26,16 @@ export function WorkspaceChoice({ session, onEnter, onSetup, onLogout }: Props) 
         <div className="flex items-center gap-3">
           <Logo />
           <div>
-            <p className="font-mono text-[14px] font-semibold tracking-[0.18em] text-white">NEXUS</p>
-            <p className="eyebrow mt-1 text-[10px]">Company workspaces</p>
+            <p className="font-mono text-sm font-semibold tracking-[0.18em] text-fg">NEXUS</p>
+            <p className="eyebrow mt-1">Company workspaces</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           <span className="hidden text-right sm:block">
-            <span className="block text-[13px] text-white">{session.name}</span>
-            <span className="block text-[11.5px] text-slate-400">{session.email}</span>
+            <span className="block text-[13px] text-fg">{session.name}</span>
+            <span className="block text-xs text-muted">{session.email}</span>
           </span>
-          <button type="button" onClick={onLogout} className="flex items-center gap-1.5 rounded border border-line px-2.5 py-1.5 text-[12px] text-slate-300 hover:text-white" aria-label="Sign out">
+          <button type="button" onClick={onLogout} className="flex items-center gap-1.5 rounded-sm border border-line px-2.5 py-1.5 text-xs text-fg-2 hover:text-fg" aria-label="Sign out">
             <LogOut className="size-3.5" aria-hidden /> Sign out
           </button>
         </div>
@@ -44,8 +45,8 @@ export function WorkspaceChoice({ session, onEnter, onSetup, onLogout }: Props) 
         {mode === 'choose' ? (
           <div className="animate-rise">
             <Eyebrow>Step 1 · Choose a path</Eyebrow>
-            <h1 className="mt-3 text-[32px] font-semibold tracking-tight text-white">Welcome, {session.name.split(' ')[0]}. Where are you working today?</h1>
-            <p className="mt-2 max-w-2xl text-[15px] text-slate-400">Each company is an isolated tenant with its own modules, knowledge base, data sources and roles.</p>
+            <h1 className="mt-3 text-[28px] font-semibold tracking-tight text-fg">Welcome, {session.name.split(' ')[0]}. Where are you working today?</h1>
+            <p className="mt-2 max-w-2xl text-base text-muted">Each company is an isolated tenant with its own modules, knowledge base, data sources and roles.</p>
 
             {memberships.length > 0 && (
               <div className="mt-6">
@@ -59,14 +60,14 @@ export function WorkspaceChoice({ session, onEnter, onSetup, onLogout }: Props) 
                           const w = openMembership(m.tenantId, session.email)
                           if (w) onEnter(w)
                         }}
-                        className="panel flex w-full items-center gap-3 px-4 py-3 text-left hover:border-nv/60"
+                        className="panel flex w-full items-center gap-3 px-4 py-3 text-left hover:border-accent/60"
                       >
-                        <Building className="size-4 shrink-0 text-nv" aria-hidden />
+                        <Building className="size-4 shrink-0 text-accent" aria-hidden />
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate text-[14px] font-medium text-white">{m.tenantName}</span>
-                          <span className="block truncate text-[12px] text-slate-400">{m.roles.map((r) => roleDef(r).label).join(' + ')}</span>
+                          <span className="block truncate text-sm font-medium text-fg">{m.tenantName}</span>
+                          <span className="block truncate text-xs text-muted">{m.roles.map((r) => roleDef(r).label).join(' + ')}</span>
                         </span>
-                        <ArrowRight className="size-4 text-slate-500" aria-hidden />
+                        <ArrowRight className="size-4 text-faint" aria-hidden />
                       </button>
                     </li>
                   ))}
@@ -96,16 +97,23 @@ export function WorkspaceChoice({ session, onEnter, onSetup, onLogout }: Props) 
               />
             </div>
 
-            <button type="button" onClick={() => onEnter(openDemoCompany(session.name, session.email))} className="mt-6 flex items-center gap-2 text-[13px] text-slate-400 hover:text-nv">
+            <button type="button" onClick={() => onEnter(openDemoCompany(session.name, session.email))} className="mt-6 flex min-h-10 items-center gap-2 rounded-md text-[13px] text-muted hover:text-accent-2">
               <Sparkles className="size-3.5" aria-hidden /> Skip — open the pre-configured demo company (Acme Process Industries, all modules)
               <ArrowRight className="size-3.5" aria-hidden />
             </button>
+
+            <section aria-labelledby="why-nexus" className="mt-10 border-t border-line pt-6">
+              <h2 id="why-nexus" className="eyebrow mb-3">
+                Why NEXUS
+              </h2>
+              <StoryCards compact className="lg:grid-cols-4" />
+            </section>
           </div>
         ) : (
           <JoinFlow session={session} onBack={() => setMode('choose')} onEnter={onEnter} />
         )}
       </div>
-      <p className="text-center text-[11.5px] text-slate-500">Demo workspace flows run entirely on local mock state — no invitations are sent and no data leaves the browser.</p>
+      <p className="text-center text-xs text-faint">Demo workspace flows run entirely on local mock state — no invitations are sent and no data leaves the browser.</p>
     </main>
   )
 }
@@ -117,21 +125,21 @@ function ChoiceCard(p: { icon: ReactNode; eyebrow: string; title: string; body: 
       onClick={p.onClick}
       className={
         'panel brackets group flex flex-col p-6 text-left transition-[border-color,box-shadow,transform] hover:-translate-y-0.5 ' +
-        (p.primary ? 'border-nv/40 hover:border-nv/70 hover:shadow-[0_0_40px_-12px_rgb(118_185_0/0.6)]' : 'hover:border-slate-500')
+        (p.primary ? 'border-accent/40 hover:border-accent/70' : 'hover:border-control')
       }
     >
-      <span className={'grid size-11 place-items-center rounded-[5px] border ' + (p.primary ? 'border-nv/50 bg-nv/10 text-nv' : 'border-line-strong text-slate-200')}>{p.icon}</span>
+      <span className={'grid size-11 place-items-center rounded-lg border ' + (p.primary ? 'border-accent/50 bg-accent/10 text-accent' : 'border-line-2 text-fg-2')}>{p.icon}</span>
       <Eyebrow className="mt-5">{p.eyebrow}</Eyebrow>
-      <span className="mt-2 text-[22px] font-semibold tracking-tight text-white">{p.title}</span>
-      <span className="mt-2 text-[14px] leading-relaxed text-slate-400">{p.body}</span>
+      <span className="mt-2 text-[22px] font-semibold tracking-tight text-fg">{p.title}</span>
+      <span className="mt-2 text-sm leading-relaxed text-muted">{p.body}</span>
       <ul className="mt-4 space-y-1.5">
         {p.bullets.map((b) => (
-          <li key={b} className="flex items-center gap-2 text-[13px] text-slate-300">
-            <CircleCheck className="size-3.5 text-nv" aria-hidden /> {b}
+          <li key={b} className="flex items-center gap-2 text-[13px] text-fg-2">
+            <CircleCheck className="size-3.5 text-accent" aria-hidden /> {b}
           </li>
         ))}
       </ul>
-      <span className={'mt-6 inline-flex items-center gap-2 self-start rounded-[4px] px-4 py-2.5 font-mono text-[12px] font-bold uppercase tracking-[0.12em] ' + (p.primary ? 'bg-nv text-[#0a1200]' : 'border border-line-strong text-white')}>
+      <span className={'mt-6 inline-flex items-center gap-2 self-start rounded-md px-4 py-2.5 font-mono text-xs font-bold uppercase tracking-[0.12em] ' + (p.primary ? 'bg-accent text-on-accent' : 'border border-line-2 text-fg')}>
         {p.cta} <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden />
       </span>
     </button>
@@ -160,28 +168,28 @@ function JoinFlow({ session, onBack, onEnter }: { session: Session; onBack: () =
 
   return (
     <div className="mx-auto w-full max-w-2xl animate-rise">
-      <button type="button" onClick={onBack} className="mb-5 flex items-center gap-1.5 text-[13px] text-slate-400 hover:text-white">
+      <button type="button" onClick={onBack} className="mb-5 flex items-center gap-1.5 text-[13px] text-muted hover:text-fg">
         <ArrowLeft className="size-3.5" aria-hidden /> Back
       </button>
       <div className="panel p-6">
         <Eyebrow>Join a company workspace</Eyebrow>
-        <h1 className="mt-2 text-[24px] font-semibold text-white">Enter your invitation code or link</h1>
+        <h1 className="mt-2 text-[22px] font-semibold text-fg">Enter your invitation code or link</h1>
         <form onSubmit={check} className="mt-5 flex gap-2">
-          <div className="flex flex-1 items-center gap-2.5 rounded-[4px] border border-line-strong bg-deck/80 pl-3 focus-within:border-nv/70">
-            <KeyRound className="size-4 text-slate-500" aria-hidden />
+          <div className="flex flex-1 items-center gap-2.5 rounded-md border border-line-2 bg-deck/80 pl-3 focus-within:border-accent/70">
+            <KeyRound className="size-4 text-faint" aria-hidden />
             <input
               aria-label="Invitation code or link"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               placeholder="ACME-DRV-7K2Q or https://…/join?code=…"
-              className="num w-full bg-transparent py-2.5 pr-3 text-[14px] text-white outline-none placeholder:text-slate-500"
+              className="num w-full bg-transparent py-2.5 pr-3 text-sm text-fg outline-none placeholder:text-faint"
             />
           </div>
-          <button type="submit" className="rounded-[4px] border border-line-strong px-4 font-mono text-[12px] font-semibold uppercase tracking-[0.1em] text-white hover:border-slate-400">
+          <button type="submit" className="rounded-md border border-line-2 px-4 font-mono text-xs font-semibold uppercase tracking-[0.1em] text-fg hover:border-control">
             Check
           </button>
         </form>
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-[12px] text-slate-500">
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-faint">
           Demo codes:
           {DEMO_INVITES.map((i) => (
             <button
@@ -191,7 +199,7 @@ function JoinFlow({ session, onBack, onEnter }: { session: Session; onBack: () =
                 setCode(i.code)
                 check(undefined, i.code)
               }}
-              className="num rounded-[3px] border border-line px-2 py-0.5 text-slate-300 hover:border-nv/60 hover:text-nv"
+              className="num rounded-sm border border-line px-2 py-0.5 text-fg-2 hover:border-accent/60 hover:text-accent"
             >
               {i.code}
             </button>
@@ -204,13 +212,13 @@ function JoinFlow({ session, onBack, onEnter }: { session: Session; onBack: () =
         )}
 
         {found && (
-          <div className="mt-6 animate-rise rounded-[5px] border border-nv/40 bg-nv/[0.05] p-4" aria-live="polite">
+          <div className="mt-6 animate-rise rounded-lg border border-accent/40 bg-accent/[0.05] p-4" aria-live="polite">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
-                <Eyebrow className="text-nv">Invitation found · local mock of POST /invites/accept</Eyebrow>
-                <p className="mt-2 text-[19px] font-semibold text-white">{tenantName}</p>
-                <p className="text-[13px] text-slate-400">
-                  Code <span className="num text-slate-200">{found.invite.code}</span> · issued by {found.invite.createdBy}
+                <Eyebrow className="text-accent">Invitation found · local mock of POST /invites/accept</Eyebrow>
+                <p className="mt-2 text-lg font-semibold text-fg">{tenantName}</p>
+                <p className="text-[13px] text-muted">
+                  Code <span className="num text-fg-2">{found.invite.code}</span> · issued by {found.invite.createdBy}
                 </p>
               </div>
               <Badge tone="nv" dot>
@@ -219,11 +227,11 @@ function JoinFlow({ session, onBack, onEnter }: { session: Session; onBack: () =
             </div>
             <div className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="eyebrow mb-2 text-[10px]">Your roles</p>
+                <p className="eyebrow mb-2">Your roles</p>
                 <RoleChips roles={found.invite.roles} />
               </div>
               <div>
-                <p className="eyebrow mb-2 text-[10px]">You will see</p>
+                <p className="eyebrow mb-2">You will see</p>
                 <p className="flex flex-wrap gap-1">
                   {pages.map((p) => (
                     <Badge key={p} tone="neutral" className="normal-case tracking-normal">
@@ -233,13 +241,9 @@ function JoinFlow({ session, onBack, onEnter }: { session: Session; onBack: () =
                 </p>
               </div>
             </div>
-            <button
-              type="button"
-              onClick={join}
-              className="glow-nv mt-5 flex w-full items-center justify-center gap-2 rounded-[4px] bg-nv px-4 py-3 font-mono text-[13px] font-bold uppercase tracking-[0.14em] text-[#0a1200] hover:brightness-110"
-            >
-              <Rocket className="size-4" aria-hidden /> Join {tenantName}
-            </button>
+            <Button variant="primary" icon={Rocket} onClick={join} className="mt-5 h-11 w-full">
+              Join {tenantName}
+            </Button>
           </div>
         )}
       </div>

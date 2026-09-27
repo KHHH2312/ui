@@ -1,4 +1,5 @@
 import { createContext, useContext } from 'react'
+import type { ViewId } from '../data/nav.ts'
 import type { EffectivePermissions, Member, UserId } from './access.ts'
 import type { Tone } from './format.ts'
 import type { SecurityIncident, Workspace } from './workspace.ts'
@@ -13,8 +14,11 @@ export interface WorkspaceCtx {
   realOwner: boolean
   perms: EffectivePermissions
   recordIncident: (i: SecurityIncident) => void
-  /** Appends a mock audit event (shown in Company Settings → Audit / Alerts). */
-  log: (action: string, detail: string, tone?: Tone) => void
+  /** Global demo kill switch (VITE_USE_MOCK default): true = local mock data, false = call FastAPI with fallback. */
+  useMock: boolean
+  setUseMock: (v: boolean) => void
+  /** Appends a mock audit event (Team & Access → Audit; role-filtered activity feeds via `resource`). */
+  log: (action: string, detail: string, tone?: Tone, resource?: ViewId) => void
 }
 
 export const WorkspaceContext = createContext<WorkspaceCtx | null>(null)

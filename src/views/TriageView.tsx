@@ -61,12 +61,10 @@ export function TriageView({ triage: t }: { triage: TriageController }) {
       <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
         <div>
           <Eyebrow>Manufacturing · Autonomous Industrial Triage &amp; Mitigation</Eyebrow>
-          <h1 className="mt-2 text-[26px] font-semibold tracking-tight text-white">Autonomous Triage cockpit</h1>
+          <h1 className="mt-2 text-[22px] font-semibold tracking-tight text-fg">Autonomous Triage cockpit</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge tone="nv" dot>
-            Neural engine · Brev A100
-          </Badge>
+          <Badge tone="info">Simulated inference · Brev GPU is an architecture target</Badge>
           <Badge tone="neutral">Gate policy v2.4</Badge>
           <Badge tone="info">PLC writes simulated</Badge>
         </div>
@@ -81,10 +79,10 @@ export function TriageView({ triage: t }: { triage: TriageController }) {
           <PipelineStrip stage={stage} gateState={gateState} />
 
           {t.notice && (
-            <div role="status" className="flex animate-rise items-center gap-3 rounded-[5px] border border-warn/50 bg-warn/[0.07] px-4 py-2.5">
+            <div role="status" className="flex animate-rise items-center gap-3 rounded-lg border border-warn/50 bg-warn/[0.07] px-4 py-2.5">
               <CloudOff className="size-4 shrink-0 text-warn" aria-hidden />
-              <p className="flex-1 text-[13px] text-slate-200">{t.notice}</p>
-              <button type="button" onClick={t.dismissNotice} className="rounded p-1 text-slate-400 hover:text-white" aria-label="Dismiss notice">
+              <p className="flex-1 text-[13px] text-fg-2">{t.notice}</p>
+              <button type="button" onClick={t.dismissNotice} className="rounded-sm p-1 text-muted hover:text-fg" aria-label="Dismiss notice">
                 <X className="size-3.5" />
               </button>
             </div>
